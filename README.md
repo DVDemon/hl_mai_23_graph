@@ -10,6 +10,14 @@ https://neo4j-client.net/doc/latest/neo4j-client_8h.html
 
 ## Library
 https://github.com/cleishm/libneo4j-client
+$ sudo apt-get install libedit-dev libcypher-parser-dev
+$ git clone https://github.com/cleishm/libneo4j-client.git
+$ cd libneo4j-client
+$ ./autogen.sh
+$ ./configure
+$ make clean check
+$ sudo make install
+
 
 ## Conect
 http://192.168.40.129:7474/browser/
