@@ -3,40 +3,20 @@
 #include <string>
 #include <errno.h>
 
-#include <Poco/URI.h>
-#include <Poco/StreamCopier.h>
-#include <Poco/Net/HTTPClientSession.h>
-#include <Poco/Net/HTTPRequest.h>
-#include <Poco/Net/HTTPResponse.h>
-#include <Poco/Net/HTTPMessage.h>
-#include <Poco/Net/Utility.h>
-#include <Poco/JSON/Parser.h>
-#include <Poco/Dynamic/Var.h>
+
+#include "rest_client.h"
 
 auto main() -> int
 {
-    Poco::URI uri("http://pocoproject.org/images/front_banner.jpg");
-    std::string path(uri.getPathAndQuery());
-    if (path.empty())
-        path = "/";
-    Poco::Net::HTTPClientSession session(uri.getHost(), uri.getPort());
-    Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_GET, path, Poco::Net::HTTPMessage::HTTP_1_1);
-    Poco::Net::HTTPResponse response;
 
-    session.sendRequest(request);
-    std::istream &rs = session.receiveResponse(response);
-    std::cout << response.getStatus() << " " << response.getReason() << std::endl;
-    if (response.getStatus() != Poco::Net::HTTPResponse::HTTP_UNAUTHORIZED)
-    {
-        std::ofstream ofs("Poco_banner.jpg", std::fstream::binary);
-        Poco::StreamCopier::copyStream(rs, ofs);
-        return true;
-    }
-    else
-    {
-        // it went wrong ?
-        return false;
-    }
+    //Poco::JSON::Object::Ptr ptr1 = rest::rest_request::get_object("http://127.0.0.1:7474/",{});
+
+    Poco::JSON::Object::Ptr request = new Poco::JSON::Object();
+    request->set("query","MATCH (n) RETURN n;");
+
+    Poco::JSON::Object::Ptr ptr = rest::rest_request::post_object("http://127.0.0.1:7474/db/neo4j/tx",
+                                                                  {"neo4j","stud"},
+                                                                  request);
     return EXIT_SUCCESS;
 }
 
