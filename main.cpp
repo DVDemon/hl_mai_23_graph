@@ -11,12 +11,20 @@ auto main() -> int
 
     //Poco::JSON::Object::Ptr ptr1 = rest::rest_request::get_object("http://127.0.0.1:7474/",{});
 
+    
+    Poco::JSON::Array::Ptr array = new Poco::JSON::Array();
+    Poco::JSON::Array::Ptr params = new Poco::JSON::Array();
+    Poco::JSON::Object::Ptr item = new Poco::JSON::Object();
+    item->set("statement","MATCH (d:Dude) return d");
+    item->set("parameters",params);
+    array->add(item);
     Poco::JSON::Object::Ptr request = new Poco::JSON::Object();
-    request->set("query","MATCH (n) RETURN n;");
-
-    Poco::JSON::Object::Ptr ptr = rest::rest_request::post_object("http://127.0.0.1:7474/db/neo4j/tx",
+    
+    request->set("statements",array);
+    Poco::JSON::Object::Ptr ptr = rest::rest_request::post_object("http://127.0.0.1:7474/db/neo4j/tx/commit",
                                                                   {"neo4j","stud"},
                                                                   request);
+
     return EXIT_SUCCESS;
 }
 

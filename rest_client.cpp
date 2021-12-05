@@ -78,8 +78,10 @@ namespace rest
 
         std::stringstream ostr;
         Poco::JSON::Stringifier::stringify(params, ostr);
+        std::cout << ostr.str() << std::endl;
         request.write(ostr);
         request.setContentType("application/json");
+        request.add("Accept","application/vnd.neo4j.jolt");
 
         std::ostringstream ss;
         Poco::Base64Encoder encoder(ss);
@@ -96,12 +98,11 @@ namespace rest
                   std::back_inserter(str));
         std::cout << response.getStatus() << " " << response.getReason() << std::endl;
         std::cout << str << std::endl;
-        if (response.getStatus() == Poco::Net::HTTPResponse::HTTP_OK)
+        if ((response.getStatus() == 200) || (response.getStatus() == 201))
         {
             Poco::JSON::Parser parser;
             Poco::Dynamic::Var result_var = parser.parse(str);
             result = result_var.extract<Poco::JSON::Object::Ptr>();
-            std::cout << "parsed" << std::endl;
         }
 
         return result;
