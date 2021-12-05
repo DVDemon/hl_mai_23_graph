@@ -6,17 +6,56 @@
 
 #include "rest_client.h"
 
-auto main() -> int
-{
-
-    //Poco::JSON::Object::Ptr ptr1 = rest::rest_request::get_object("http://127.0.0.1:7474/",{});
-
+void request(){
+    Poco::JSON::Array::Ptr array = new Poco::JSON::Array();
     
+    
+    std::vector<std::string> res={
+        "CREATE (leBig:Dude {name: \"Lebowski\"})",
+        "CREATE (dudeA1:Dude {name: \"A1\"})",
+        "CREATE (dudeA2:Dude {name: \"A2\"})",
+        "CREATE (leBig)<-[:FRIEND_OF]-(dudeA1)",
+        "CREATE (leBig)<-[:FRIEND_OF]-(dudeA2)"
+    };
+
+    std::for_each(std::begin(res),std::end(res),[&array](const std::string& s){
+        Poco::JSON::Array::Ptr params = new Poco::JSON::Array();
+        Poco::JSON::Object::Ptr item = new Poco::JSON::Object();
+        item->set("statement",s);
+        item->set("parameters",params);
+        item->set("includeStats","true");
+        array->add(item);
+    });
+    
+    Poco::JSON::Object::Ptr request = new Poco::JSON::Object();
+    
+    request->set("statements",array);
+    Poco::JSON::Object::Ptr ptr = rest::rest_request::post_object("http://127.0.0.1:7474/db/neo4j/tx",
+                                                                  {"neo4j","stud"},
+                                                                  request);
+    std::string commit_path = ptr->getValue<std::string>("commit");
+    std::cout << "commit url:" << commit_path << std::endl;
+
+    Poco::JSON::Array::Ptr array2 = new Poco::JSON::Array();
+    Poco::JSON::Array::Ptr params2 = new Poco::JSON::Array();
+    Poco::JSON::Object::Ptr item2 = new Poco::JSON::Object();
+    item2->set("statement","MATCH (d:Dude) return d");
+    item2->set("parameters",params2);
+    item2->set("includeStats","true");
+    array2->add(item2);
+    Poco::JSON::Object::Ptr request2 = new Poco::JSON::Object();
+    
+    request->set("statements",array2);
+    rest::rest_request::post_object(commit_path,{"neo4j","stud"},request2);
+}
+
+void query(){
     Poco::JSON::Array::Ptr array = new Poco::JSON::Array();
     Poco::JSON::Array::Ptr params = new Poco::JSON::Array();
     Poco::JSON::Object::Ptr item = new Poco::JSON::Object();
     item->set("statement","MATCH (d:Dude) return d");
     item->set("parameters",params);
+    item->set("includeStats","true");
     array->add(item);
     Poco::JSON::Object::Ptr request = new Poco::JSON::Object();
     
@@ -24,6 +63,16 @@ auto main() -> int
     Poco::JSON::Object::Ptr ptr = rest::rest_request::post_object("http://127.0.0.1:7474/db/neo4j/tx/commit",
                                                                   {"neo4j","stud"},
                                                                   request);
+
+}
+
+auto main() -> int
+{
+
+    //Poco::JSON::Object::Ptr ptr1 = rest::rest_request::get_object("http://127.0.0.1:7474/",{});
+
+    request();
+    query();
 
     return EXIT_SUCCESS;
 }

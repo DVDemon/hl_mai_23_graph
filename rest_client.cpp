@@ -81,7 +81,8 @@ namespace rest
         std::cout << ostr.str() << std::endl;
         request.write(ostr);
         request.setContentType("application/json");
-        request.add("Accept","application/vnd.neo4j.jolt");
+        request.add("Accept","application/json;charset=UTF-8");
+        //request.add("Accept","application/vnd.neo4j.jolt");
 
         std::ostringstream ss;
         Poco::Base64Encoder encoder(ss);
