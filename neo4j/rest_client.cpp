@@ -11,7 +11,7 @@
 
 #include <algorithm>
 
-namespace rest
+namespace neo4j
 {
 
     Poco::JSON::Object::Ptr rest_request::get_object(const std::string &url,
@@ -110,7 +110,7 @@ namespace rest
         std::copy(std::istream_iterator<char>(rs), std::istream_iterator<char>(),
                   std::back_inserter(str));
 
-        std::cout << str << std::endl;
+        //std::cout << str << std::endl;
 
         Poco::JSON::Object::Ptr result;
         if ((response.getStatus() == 200) || (response.getStatus() == 201))
@@ -118,6 +118,45 @@ namespace rest
             Poco::JSON::Parser parser;
             Poco::Dynamic::Var result_var = parser.parse(str);
             result = result_var.extract<Poco::JSON::Object::Ptr>();
+        }
+        else
+            throw std::logic_error("connection error");
+
+        return result;
+    }
+
+    std::vector<result_pair_collection_t> rest_request::query_nodes(const std::string &url,
+                                                                    const std::pair<std::string, std::string> authorization,
+                                                                    const std::vector<std::string> &params)
+    {
+        std::vector<result_pair_collection_t> result;
+
+        try
+        {
+            Poco::JSON::Object::Ptr jobject = post_object(url, authorization, params);
+            Poco::JSON::Array::Ptr datasets = jobject->getArray("results");
+            if (datasets->size() == 1)
+            {
+                Poco::JSON::Array::Ptr records = datasets->getObject(0)->getArray("data");
+
+                //std::cout << "records:" << records->size() << std::endl;
+                for (size_t i = 0; i < records->size(); ++i)
+                {
+                    Poco::JSON::Object::Ptr ptr = records->getObject(i)->getArray("row")->getObject(0);
+                    result_pair_collection_t element;
+                    std::vector<std::string> names;
+                    ptr->getNames(names);
+                    for(std::string &name: names){
+                        //std::cout << name << ":" << ptr->getValue<std::string>(name) << std::endl;
+                        element.push_back(result_pair_t(name,ptr->getValue<std::string>(name)));
+                    }
+                    result.push_back(element);
+                }
+            }
+        }
+        catch (std::exception ex)
+        {
+            std::cerr << "neo4j exception:" << ex.what() << std::endl;
         }
 
         return result;

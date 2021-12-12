@@ -1,0 +1,1 @@
+sudo ./build/hl_mai_08_sharding --host=127.0.0.1  --port=7474 --login=neo4j --password=stud --database=neo4j

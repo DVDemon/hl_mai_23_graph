@@ -1,17 +1,8 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <errno.h>
+#include "web_server/http_web_server.h"
 
 
-#include "rest_client.h"
-
-auto main() -> int
+int main(int argc, char*argv[]) 
 {
-
-    Poco::JSON::Object::Ptr ptr = rest::rest_request::post_object("http://127.0.0.1:7474/db/neo4j/tx/commit",
-                                                                  {"neo4j","stud"},
-                                                                  {"MATCH (n) return n"});
-
-    return EXIT_SUCCESS;
+    HTTPWebServer app;
+    return app.run(argc, argv);
 }
