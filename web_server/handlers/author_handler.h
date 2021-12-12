@@ -108,7 +108,7 @@ public:
         response.setContentType("application/json");
         std::ostream &ostr = response.send();
 
-        if (form.has("login"))
+        if (form.has("login")&&!form.has("add"))
         {
             std::string login = form.get("login").c_str();
             if (form.has("add_friend"))

@@ -13,6 +13,27 @@
 
 namespace neo4j
 {
+    std::string rest_request::connection = "http://127.0.0.1:7474/db/neo4j/tx/commit";
+    std::string rest_request::login="neo4j";
+    std::string rest_request::password="stud";
+    void rest_request::config(const std::string &host,const std::string& port,const std::string& database,const std::string& login,const std::string& password){
+        connection = "http://"+host+":"+port+"/db/"+database+"/tx/commit";
+        rest_request::login = login;
+        rest_request::password = password;
+        std::cout << "neo4j connection string:" << connection << std::endl;
+    }
+
+    const std::string & rest_request::get_connection(){
+        return connection;
+    }
+    
+    const std::string & rest_request::get_login(){
+        return login;
+    }
+    
+    const std::string & rest_request::get_password(){
+        return password;
+    }
 
     Poco::JSON::Object::Ptr rest_request::get_object(const std::string &url,
                                                      const std::vector<std::pair<std::string, std::string>> &params)
@@ -100,6 +121,7 @@ namespace neo4j
         }
 
         request.setContentLength(ostr.str().length());
+        std::cout << ostr.str() << std::endl;
         session.sendRequest(request) << ostr.str() << std::flush;
 
         Poco::Net::HTTPResponse response;

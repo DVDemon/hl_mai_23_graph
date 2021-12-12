@@ -40,6 +40,7 @@ using Poco::Util::ServerApplication;
 #include "http_request_factory.h"
 #include "../config/config.h"
 #include "../database/author.h"
+#include "../neo4j/rest_client.h"
 
 
 class HTTPWebServer : public Poco::Util::ServerApplication
@@ -169,10 +170,15 @@ protected:
                 config().getString("HTTPWebServer.format",
                                    DateTimeFormat::SORTABLE_FORMAT));
 
-
+            neo4j::rest_request::config(Config::get().get_host(),
+                                        Config::get().get_port(),
+                                        Config::get().get_database(),
+                                        Config::get().get_login(),
+                                        Config::get().get_password());
+                                        
             ServerSocket svs(Poco::Net::SocketAddress("0.0.0.0", port));
-            HTTPServer srv(new HTTPRequestFactory(format),
-                           svs, new HTTPServerParams);
+            HTTPServer srv(new HTTPRequestFactory(format),svs, new HTTPServerParams);
+
             srv.start();
             waitForTerminationRequest();
             srv.stop();
