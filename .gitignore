@@ -4,6 +4,7 @@ docker/data/*
 docker/impoer/*
 docker/logs/*
 docker/plugin/*
+.vscode/*
 
 # Prerequisites
 *.d

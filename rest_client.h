@@ -14,7 +14,7 @@ namespace rest{
 
         static Poco::JSON::Object::Ptr post_object(const std::string& url,
                                            const std::pair<std::string,std::string> authorization,
-                                           const Poco::JSON::Object::Ptr& params);
+                                           const std::vector<std::string>& params);
 
     };
 }
