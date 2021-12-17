@@ -1,7 +1,7 @@
 build/*
 docker/conf/*
 docker/data/*
-docker/impoer/*
+docker/import/*
 docker/logs/*
 docker/plugin/*
 .vscode/*

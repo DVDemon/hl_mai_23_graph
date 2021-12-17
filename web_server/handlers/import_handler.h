@@ -1,5 +1,5 @@
-#ifndef HTTPREQUESTFACTORY_H
-#define HTTPREQUESTFACTORY_H
+#ifndef IMPORTHANDLER_H
+#define IMPORTHANDLER_H
 
 #include "Poco/Net/HTTPServer.h"
 #include "Poco/Net/HTTPRequestHandler.h"
@@ -18,7 +18,9 @@
 #include "Poco/Util/Option.h"
 #include "Poco/Util/OptionSet.h"
 #include "Poco/Util/HelpFormatter.h"
+#include "Poco/StreamCopier.h"
 #include <iostream>
+#include <fstream>
 
 using Poco::Net::ServerSocket;
 using Poco::Net::HTTPRequestHandler;
@@ -38,40 +40,33 @@ using Poco::Util::OptionSet;
 using Poco::Util::OptionCallback;
 using Poco::Util::HelpFormatter;
 
-#include "handlers/author_handler.h"
-#include "handlers/web_page_handler.h"
-#include "handlers/import_handler.h"
-
-
-static bool startsWith(const std::string& str, const std::string& prefix)
-{
-    return str.size() >= prefix.size() && 0 == str.compare(0, prefix.size(), prefix);
-}
-
-
-class HTTPRequestFactory: public HTTPRequestHandlerFactory
+class ImportHandler: public HTTPRequestHandler
 {
 public:
-    HTTPRequestFactory(const std::string& format):
-        _format(format)
+    ImportHandler(const std::string& format): _format(format)
     {
     }
 
-    HTTPRequestHandler* createRequestHandler(
-        const HTTPServerRequest& request)
+    void handleRequest(HTTPServerRequest& request,
+                       HTTPServerResponse& response)
     {
-        static std::string author="/author"; 
-        static std::string import="/import"; 
-        if (startsWith(request.getURI(),author)) return new AuthorHandler(_format);
-        if (startsWith(request.getURI(),import)) return new ImportHandler(_format);
+       // Application& app = Application::instance();
+       // app.logger().information("HTML Request from "    + request.clientAddress().toString());
 
+        response.setChunkedTransferEncoding(true);
+        response.setContentType("text/html");
+        response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_OK);   
 
-        return new WebPageHandler(_format);
-        return 0;
+        std::ofstream file;
+        
+        file.open("import.xls", std::ofstream::binary);
+        std::istream &i = request.stream();
+        Poco::StreamCopier::copyStream(i, file, request.getContentLength());
+        std::ostream& ostr = response.send();
+        ostr.flush();
     }
 
 private:
     std::string _format;
 };
-
-#endif
+#endif // !IMPORTHANDLER_H
