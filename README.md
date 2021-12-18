@@ -18,6 +18,8 @@ $ ./configure
 $ make clean check
 $ sudo make install
 
+## OpenXLS
+https://github.com/troldal/OpenXLSX
 
 ## Conect
 http://192.168.40.129:7474/browser/

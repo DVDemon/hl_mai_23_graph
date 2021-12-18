@@ -29,6 +29,8 @@ link_directories("/usr/local/lib")
 
 add_executable(${EXAMPLE_BINARY} main.cpp
                                  database/author.cpp
+                                 database/node.cpp
+                                 database/link.cpp
                                  config/config.cpp
                                  neo4j/rest_client.cpp)
 
@@ -41,6 +43,7 @@ target_link_libraries(${EXAMPLE_BINARY} PRIVATE
                              ${POCO_DATA_LIBS}
                              ${GRAPHQL_LIBS}
                              ${Boost_LIBRARIES}
+                             "OpenXLSX"
                              stdc++fs
                              ZLIB::ZLIB)
 
