@@ -35,58 +35,10 @@ namespace neo4j
         return password;
     }
 
-    Poco::JSON::Object::Ptr rest_request::get_object(const std::string &url,
-                                                     const std::vector<std::pair<std::string, std::string>> &params)
-    {
-        Poco::JSON::Object::Ptr result;
-        Poco::URI uri(url);
-        std::string url_param;
-
-        std::string path(uri.getPathAndQuery());
-        if (path.empty())
-            path = "/";
-
-        if (!params.empty())
-        {
-            path += "?";
-            std::for_each(std::begin(params), std::end(params), [&path](const auto &p)
-                          { 
-                        path += p.first;
-                        path += "=";
-                        path += p.second;
-                        path += "&"; });
-            path.erase(path.length() - 1, 1);
-        }
-
-        Poco::Net::HTTPClientSession session(uri.getHost(), uri.getPort());
-        Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_GET, path, Poco::Net::HTTPMessage::HTTP_1_1);
-
-        Poco::Net::HTTPResponse response;
-
-        session.sendRequest(request);
-        std::istream &rs = session.receiveResponse(response);
-        std::string str;
-        std::copy(std::istream_iterator<char>(rs), std::istream_iterator<char>(),
-                  std::back_inserter(str));
-        std::cout << response.getStatus() << " " << response.getReason() << std::endl;
-        std::cout << str << std::endl;
-        if (response.getStatus() == Poco::Net::HTTPResponse::HTTP_OK)
-        {
-            Poco::JSON::Parser parser;
-            Poco::Dynamic::Var result_var = parser.parse(str);
-            result = result_var.extract<Poco::JSON::Object::Ptr>();
-            std::cout << "parsed" << std::endl;
-        }
-
-        return result;
-    }
-
-    Poco::JSON::Object::Ptr rest_request::post_object(const std::string &url,
-                                                      const std::pair<std::string, std::string> authorization,
-                                                      const std::vector<std::string> &params)
+    Poco::JSON::Object::Ptr rest_request::post_object(const std::vector<std::string> &params)
     {
 
-        Poco::URI uri(url);
+        Poco::URI uri(get_connection());
 
         std::string path(uri.getPathAndQuery());
         if (path.empty())
@@ -101,7 +53,7 @@ namespace neo4j
         // authorization
         std::ostringstream ss;
         Poco::Base64Encoder encoder(ss);
-        encoder << authorization.first << ":" << authorization.second;
+        encoder << get_login() << ":" << get_password();
         encoder.close();
         request.setCredentials("Basic", ss.str());
 
@@ -121,7 +73,7 @@ namespace neo4j
         }
 
         request.setContentLength(ostr.str().length());
-        std::cout << ostr.str() << std::endl;
+        //std::cout << ostr.str() << std::endl;
         session.sendRequest(request) << ostr.str() << std::flush;
 
         Poco::Net::HTTPResponse response;
@@ -147,15 +99,13 @@ namespace neo4j
         return result;
     }
 
-    std::vector<result_pair_collection_t> rest_request::query_nodes(const std::string &url,
-                                                                    const std::pair<std::string, std::string> authorization,
-                                                                    const std::vector<std::string> &params)
+    std::vector<result_pair_collection_t> rest_request::query_nodes(const std::vector<std::string> &params)
     {
         std::vector<result_pair_collection_t> result;
 
         try
         {
-            Poco::JSON::Object::Ptr jobject = post_object(url, authorization, params);
+            Poco::JSON::Object::Ptr jobject = post_object( params);
             Poco::JSON::Array::Ptr datasets = jobject->getArray("results");
             if (datasets->size() == 1)
             {

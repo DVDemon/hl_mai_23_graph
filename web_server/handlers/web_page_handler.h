@@ -64,6 +64,8 @@ public:
         std::string uri = request.getURI();
         if(pos!=std::string::npos) uri = uri.substr(0,pos);
         std::string name="content"+uri;
+
+        std::cout << "WebPage:" << name << std::endl;
         file.open(name, std::ifstream::binary);
 
         if (file.is_open())

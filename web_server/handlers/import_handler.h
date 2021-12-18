@@ -28,6 +28,7 @@
 
 #include "../../database/node.h"
 #include "../../database/link.h"
+#include "../neo4j/rest_client.h"
 
 using Poco::DateTimeFormat;
 using Poco::DateTimeFormatter;
@@ -120,6 +121,11 @@ public:
                   << "Links processed:" << links.size() << std::endl;
         std::cout << "Nodes  created:" << nodes.size() << std::endl;
 
+        neo4j::rest_request::query_nodes({"MATCH (n) DETACH DELETE n"});
+        neo4j::rest_request::query_nodes({"CREATE CONSTRAINT ON (n:NODE) ASSERT (n.code) IS UNIQUE"});
+        neo4j::rest_request::query_nodes({"CREATE INDEX FOR (m:NODE) ON (m.code)"});
+
+        std::cout << "Neo4j cleared" << std::endl;
         i = 0;
         for (auto &[name, node] : nodes)
         {
@@ -142,6 +148,8 @@ public:
         }
         std::cout << std::endl
                   << "Links  saved" << std::endl;
+
+
     }
 
 private:

@@ -1,5 +1,7 @@
 #include "node.h"
 
+#include "../neo4j/rest_client.h"
+
 namespace database
 {
     Node::Node(){
@@ -16,6 +18,17 @@ namespace database
 
     void Node::save()
     {
+        std::string query;
+        query = "CREATE (n:NODE {";
+        query += "code:\"";
+        query += _code;
+        query += "\",name:\"";
+        query += _name;
+        query += "\",type:\"";
+        query += _type;
+        query += "\"})";
+
+        neo4j::rest_request::query_nodes({query});
     }
 
     const std::string &Node::code() const

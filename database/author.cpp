@@ -24,12 +24,8 @@ namespace database
     {
         try
         {
-            neo4j::rest_request::query_nodes(neo4j::rest_request::get_connection(),
-                                             {neo4j::rest_request::get_login(), neo4j::rest_request::get_password()},
-                                             {"CREATE CONSTRAINT ON (n:AUTHOR) ASSERT (n.login) IS UNIQUE"});
-            neo4j::rest_request::query_nodes(neo4j::rest_request::get_connection(),
-                                             {neo4j::rest_request::get_login(), neo4j::rest_request::get_password()},
-                                             {"CREATE INDEX FOR (m:AUTHOR) ON (m.login)"});
+            neo4j::rest_request::query_nodes({"CREATE CONSTRAINT ON (n:AUTHOR) ASSERT (n.login) IS UNIQUE"});
+            neo4j::rest_request::query_nodes({"CREATE INDEX FOR (m:AUTHOR) ON (m.login)"});
         }
         catch (std::exception &ex)
         {
@@ -80,9 +76,7 @@ namespace database
             query += login;
             query += "\"}) RETURN a";
 
-            auto res = neo4j::rest_request::query_nodes(neo4j::rest_request::get_connection(),
-                                             {neo4j::rest_request::get_login(), neo4j::rest_request::get_password()},
-                                             {query});
+            auto res = neo4j::rest_request::query_nodes({query});
             if(res.size()>0){
                 std::vector<std::pair<std::string,std::string>> arr = res[0];
                 for(auto p: arr){
@@ -156,9 +150,7 @@ namespace database
         query += login;
         query += "\"}) CREATE (b)-[:FRIEND]->(a)";
 
-        neo4j::rest_request::query_nodes(neo4j::rest_request::get_connection(),
-                                         {neo4j::rest_request::get_login(), neo4j::rest_request::get_password()},
-                                         {query});
+        neo4j::rest_request::query_nodes({query});
 
         query = "MATCH (a:AUTHOR {";
         query += "login:\"";
@@ -167,9 +159,7 @@ namespace database
         query += _login;
         query += "\"}) CREATE (b)-[:FRIEND]->(a)";
 
-        neo4j::rest_request::query_nodes(neo4j::rest_request::get_connection(),
-                                         {neo4j::rest_request::get_login(), neo4j::rest_request::get_password()},
-                                         {query});
+        neo4j::rest_request::query_nodes({query});
     }
     void Author::remove_friend([[maybe_unused]] const std::string &login)
     {
@@ -181,9 +171,7 @@ namespace database
         query += login;
         query += "\"}) DELETE r";
 
-        neo4j::rest_request::query_nodes(neo4j::rest_request::get_connection(),
-                                         {neo4j::rest_request::get_login(), neo4j::rest_request::get_password()},
-                                         {query});
+        neo4j::rest_request::query_nodes({query});
 
         query = "MATCH (a:AUTHOR {";
         query += "login:\"";
@@ -192,9 +180,7 @@ namespace database
         query += _login;
         query += "\"}) DELETE r";
 
-        neo4j::rest_request::query_nodes(neo4j::rest_request::get_connection(),
-                                         {neo4j::rest_request::get_login(), neo4j::rest_request::get_password()},
-                                         {query});
+        neo4j::rest_request::query_nodes({query});
     }
 
     void Author::save_to_neo4j()
@@ -213,9 +199,7 @@ namespace database
         query += _title;
         query += "\"})";
 
-        neo4j::rest_request::query_nodes(neo4j::rest_request::get_connection(),
-                                         {neo4j::rest_request::get_login(), neo4j::rest_request::get_password()},
-                                         {query});
+        neo4j::rest_request::query_nodes({query});
     }
 
     const std::string &Author::get_login() const
