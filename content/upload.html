@@ -1,15 +1,55 @@
 <html>
+<script>
+
+    function readFileAsArrayBuffer(file, success, error) {
+        var fr = new FileReader();
+        fr.addEventListener('error', error, false);
+        if (fr.readAsBinaryString) {
+            fr.addEventListener('load', function () {
+                var string = this.resultString != null ? this.resultString : this.result;
+                var result = new Uint8Array(string.length);
+                for (var i = 0; i < string.length; i++) {
+                    result[i] = string.charCodeAt(i);
+                }
+                success(result.buffer);
+            }, false);
+            return fr.readAsBinaryString(file);
+        } else {
+            fr.addEventListener('load', function () {
+                success(this.result);
+            }, false);
+            return fr.readAsArrayBuffer(file);
+        }
+    }
+    function loadfile() {
+        // no file selected to read
+        if (document.querySelector("#file").value == '') {
+            alert('No file selected');
+            return;
+        }
+
+        var file = document.querySelector("#file").files[0];
+
+        readFileAsArrayBuffer(file, function (data) {
+            var array = new Int8Array(data);
+            alert(array.byteLength);
+            var oReq = new XMLHttpRequest();
+            oReq.open("POST", "/import", true);
+            oReq.onload = function (oEvent) {
+                // Uploaded.
+                alert("uploaded")
+            };
+            oReq.send(array);
+        }, function (e) {
+            console.error(e);
+        });
+    }
+
+</script>
 
 <body>
-    <form method="post" enctype="multipart/form-data" action="import">
-        <div>
-            <label for="file">Choose file to upload</label>
-            <input type="file" id="file" name="file" multiple>
-        </div>
-        <div>
-            <button>Submit</button>
-        </div>
-    </form>
+    <input type="file" id="file" />
+    <button id="read-file" onclick="loadfile()">Read File</button>
 </body>
 
 </html>

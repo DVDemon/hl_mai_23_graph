@@ -6,6 +6,9 @@ docker/logs/*
 docker/plugin/*
 .vscode/*
 
+# xls
+*.xls
+
 # Prerequisites
 *.d
 
