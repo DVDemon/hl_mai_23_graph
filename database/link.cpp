@@ -15,6 +15,17 @@ namespace database
     {
     }
 
+    Poco::JSON::Object::Ptr Link::toJSON() const{
+        Poco::JSON::Object::Ptr root = new Poco::JSON::Object();
+
+        root->set("name", _name);
+        root->set("percent", _percent);
+        root->set("source_node_code", _source_node_code);
+        root->set("target_node_code", _target_node_code);
+
+        return root;
+    }
+
     void Link::save()
     {
         std::string query;

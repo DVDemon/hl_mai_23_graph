@@ -2,6 +2,7 @@
 #define H_LINK
 
 #include <string>
+#include "Poco/JSON/Object.h"
 
 namespace database
 {
@@ -18,7 +19,10 @@ namespace database
         Link();
         Link(const std::string &name, int percent,const std::string& source_node_code,const std::string& target_node_code);
 
+
         void save();
+        Poco::JSON::Object::Ptr toJSON() const;
+
         const std::string &name() const;
         const std::string & source_node_code() const;
         const std::string & target_node_code() const;
