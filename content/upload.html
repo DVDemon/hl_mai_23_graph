@@ -32,7 +32,7 @@
 
         readFileAsArrayBuffer(file, function (data) {
             var array = new Int8Array(data);
-            alert(array.byteLength);
+            //alert(array.byteLength);
             var oReq = new XMLHttpRequest();
             oReq.open("POST", "/import", true);
             oReq.onload = function (oEvent) {

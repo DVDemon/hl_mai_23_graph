@@ -31,11 +31,12 @@ add_executable(${EXAMPLE_BINARY} main.cpp
                                  database/author.cpp
                                  database/node.cpp
                                  database/link.cpp
+                                 database/import_task.cpp
                                  config/config.cpp
                                  neo4j/rest_client.cpp)
 
 target_include_directories(${EXAMPLE_BINARY} PRIVATE "${CMAKE_BINARY_DIR}")
-target_compile_options(${EXAMPLE_BINARY} PRIVATE -Wall -Wextra -pedantic -Werror )
+target_compile_options(${EXAMPLE_BINARY} PRIVATE -Wall -Wextra -pedantic -Werror -lstdc++fs)
 
 target_link_libraries(${EXAMPLE_BINARY} PRIVATE 
                              ${CMAKE_THREAD_LIBS_INIT} 

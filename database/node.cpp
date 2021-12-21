@@ -32,7 +32,7 @@ namespace database
 
             Node a;
             std::string query;
-            query = "MATCH (a:NODE {";
+            query = "MATCH (a {";
             query += "code:\"";
             query += code;
             query += "\"}) RETURN a";
@@ -67,7 +67,7 @@ namespace database
 
             std::vector<Node> result;
             std::string query;
-            query = "MATCH (a:NODE {";
+            query = "MATCH (a {";
             query += "code:\"";
             query += code;
             query += "\"}) RETURN a";
@@ -99,7 +99,9 @@ namespace database
     void Node::save()
     {
         std::string query;
-        query = "CREATE (n:NODE {";
+        query = "CREATE (n:";
+        query += _type;
+        query += " {";
         query += "code:\"";
         query += _code;
         query += "\",name:\"";

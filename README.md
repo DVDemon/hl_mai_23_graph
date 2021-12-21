@@ -27,3 +27,14 @@ http://192.168.40.129:7474/browser/
 ## Book
 https://learning.oreilly.com/library/view/beginning-neo4j/9781484212271/9781484212288_Ch04.xhtml
 
+## Fancy queries
+MATCH (n{code:"PRO.006"})-[*..1]->(m)  WHERE m.type in ["Приложение","Продукт","Платформа"] RETURN n,m 
+
+MATCH (n{code:"PRO.006"})-[*..1]->(m)  WHERE m.type in ["Подразделение"] RETURN n,m 
+
+MATCH (a {code:"PRO.006"}),
+      (b {code:"PRO.260"}),
+      p = shortestPath((a)-[*]-(b))
+WITH p
+WHERE length(p) > 1
+RETURN p

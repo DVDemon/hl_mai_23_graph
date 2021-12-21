@@ -19,6 +19,7 @@
 #include "Poco/Util/OptionSet.h"
 #include "Poco/Util/HelpFormatter.h"
 #include "Poco/StreamCopier.h"
+#include "Poco/UUIDGenerator.h"
 
 #include <iostream>
 #include <fstream>
@@ -48,6 +49,8 @@ using Poco::Util::OptionCallback;
 using Poco::Util::OptionSet;
 using Poco::Util::ServerApplication;
 
+#include <experimental/filesystem>
+#include "../database/import_task.h"
 class ImportHandler : public HTTPRequestHandler
 {
 public:
@@ -66,7 +69,10 @@ public:
         response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_OK);
         std::cout << "Upload started" << std::endl;
         std::ofstream file;
-        const std::string xlsx_name{"import.xls"};
+
+        auto uuid_str = Poco::UUIDGenerator().createRandom().toString();
+        uuid_str += ".xls";
+        const std::string xlsx_name{uuid_str};
         file.open(xlsx_name, std::ofstream::binary);
         std::istream &is = request.stream();
         Poco::StreamCopier::copyStream(is, file, request.getContentLength());
@@ -74,6 +80,10 @@ public:
         ostr.flush();
 
         std::cout << "Document uploaded" << std::endl;
+
+        database::ImportTask::get().add([xlsx_name]()
+        {
+        std::cout << "Starting to process:" << xlsx_name << std::endl;
         OpenXLSX::XLDocument doc;
         doc.open(xlsx_name);
         OpenXLSX::XLWorksheet wks = doc.workbook().worksheet("Список");
@@ -147,8 +157,11 @@ public:
                 std::cout << "." << std::flush;
         }
         std::cout << std::endl
-                  << "Links  saved" << std::endl;
-
+                  << "Links  saved" << std::endl; 
+        
+        if (std::experimental::filesystem::remove(xlsx_name))
+            std::cout << "file " << xlsx_name << " deleted.\n";
+            });
 
     }
 

@@ -29,10 +29,10 @@ namespace database
     void Link::save()
     {
         std::string query;
-        query = "MATCH (a:NODE {";
+        query = "MATCH (a {";
         query += "code:\"";
         query += _source_node_code;
-        query += "\"}),(b:NODE{code:\"";
+        query += "\"}),(b{code:\"";
         query += _target_node_code;
         query += "\"}) CREATE (a)-[:LINK {name:\"";
         query += _name;
