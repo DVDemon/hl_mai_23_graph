@@ -29,12 +29,13 @@
         }
 
         var file = document.querySelector("#file").files[0];
-
+        
         readFileAsArrayBuffer(file, function (data) {
             var array = new Int8Array(data);
             //alert(array.byteLength);
             var oReq = new XMLHttpRequest();
-            oReq.open("POST", "/import", true);
+            var str = "/import?"+document.querySelector("#import_type").value;
+            oReq.open("POST", str, true);
             oReq.onload = function (oEvent) {
                 // Uploaded.
                 alert("uploaded")
@@ -50,6 +51,11 @@
 <body>
     <input type="file" id="file" />
     <button id="read-file" onclick="loadfile()">Read File</button>
+    <select id="import_type" name="import_type">
+        <option value="nodes">Nodes and links</option>
+        <option value="capabilities">Capabilities</option>
+        <option value="tech">Tech stack</option>
+      </select>
 </body>
 
 </html>

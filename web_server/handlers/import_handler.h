@@ -29,6 +29,9 @@
 
 #include "../../database/node.h"
 #include "../../database/link.h"
+#include "../../database/capability.h"
+#include "../../database/capability_link.h"
+
 #include "../neo4j/rest_client.h"
 
 using Poco::DateTimeFormat;
@@ -58,34 +61,13 @@ public:
     {
     }
 
-    void handleRequest(HTTPServerRequest &request,
-                       HTTPServerResponse &response)
+    void import_node_links(const std::string &file)
     {
-        // Application& app = Application::instance();
-        // app.logger().information("HTML Request from "    + request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-        response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_OK);
-        std::cout << "Upload started" << std::endl;
-        std::ofstream file;
-
-        auto uuid_str = Poco::UUIDGenerator().createRandom().toString();
-        uuid_str += ".xls";
-        const std::string xlsx_name{uuid_str};
-        file.open(xlsx_name, std::ofstream::binary);
-        std::istream &is = request.stream();
-        Poco::StreamCopier::copyStream(is, file, request.getContentLength());
-        std::ostream &ostr = response.send();
-        ostr.flush();
-
-        std::cout << "Document uploaded" << std::endl;
-
-        database::ImportTask::get().add([xlsx_name]()
-        {
-        std::cout << "Starting to process:" << xlsx_name << std::endl;
+        database::ImportTask::get().add([file]()
+                                        {
+        std::cout << "Starting to process nodes:" << file << std::endl;
         OpenXLSX::XLDocument doc;
-        doc.open(xlsx_name);
+        doc.open(file);
         OpenXLSX::XLWorksheet wks = doc.workbook().worksheet("Список");
 
         std::cout << "Worksheet opened" << std::endl;
@@ -131,9 +113,9 @@ public:
                   << "Links processed:" << links.size() << std::endl;
         std::cout << "Nodes  created:" << nodes.size() << std::endl;
 
-        neo4j::rest_request::query_nodes({"MATCH (n) DETACH DELETE n"});
-        neo4j::rest_request::query_nodes({"CREATE CONSTRAINT ON (n:NODE) ASSERT (n.code) IS UNIQUE"});
-        neo4j::rest_request::query_nodes({"CREATE INDEX FOR (m:NODE) ON (m.code)"});
+        //neo4j::rest_request::query_nodes({"MATCH (n) DETACH DELETE n"});
+        neo4j::rest_request::query_nodes({"CREATE CONSTRAINT ON (n) ASSERT (n.code) IS UNIQUE"});
+        neo4j::rest_request::query_nodes({"CREATE INDEX FOR (m) ON (m.code)"});
 
         std::cout << "Neo4j cleared" << std::endl;
         i = 0;
@@ -159,10 +141,126 @@ public:
         std::cout << std::endl
                   << "Links  saved" << std::endl; 
         
-        if (std::experimental::filesystem::remove(xlsx_name))
-            std::cout << "file " << xlsx_name << " deleted.\n";
-            });
+        if (std::experimental::filesystem::remove(file))
+            std::cout << "file " << file << " deleted.\n"; });
+    }
 
+    void import_capabilities(const std::string &file)
+    {
+        database::ImportTask::get().add([file]()
+                                        {
+        std::cout << "Starting to process capabilities:" << file << std::endl;
+        OpenXLSX::XLDocument doc;
+        doc.open(file);
+        OpenXLSX::XLWorksheet wks = doc.workbook().worksheet("Позиционирование");
+
+        std::cout << "Worksheet opened" << std::endl;
+
+        unsigned long i = 1;
+
+        std::map<std::string, database::Capability> nodes;
+        std::vector<database::CapabilityLink> links;
+
+        
+        for (auto &row : wks.rows())
+        {
+            if (i < 2)
+            {
+                ++i;
+            }
+            else
+            {
+                std::vector<OpenXLSX::XLCellValue> row_vector(row.values());
+
+                if(!row_vector.empty()){
+                    std::string code;
+                    std::string name;
+                    std::string owner;
+                    std::string node_code;
+                    
+                    
+                    code = row_vector[2].get<std::string>();
+                    name = row_vector[3].get<std::string>();
+                    owner = row_vector[5].get<std::string>();
+                    node_code = row_vector[7].get<std::string>();
+
+                    nodes[code] = database::Capability{code,name,owner};
+                    links.push_back(database::CapabilityLink{node_code,code});
+                }
+
+                ++i;
+                if (i % 100 == 0)
+                        std::cout << "." << std::flush;
+            }
+        }
+
+        doc.close();
+        std::cout << std::endl
+                  << "Links processed:" << links.size() << std::endl;
+        std::cout << "Capabilities  created:" << nodes.size() << std::endl;
+
+        //neo4j::rest_request::query_nodes({"MATCH (n) DETACH DELETE n"});
+        //neo4j::rest_request::query_nodes({"CREATE CONSTRAINT ON (n) ASSERT (n.code) IS UNIQUE"});
+        //neo4j::rest_request::query_nodes({"CREATE INDEX FOR (m) ON (m.code)"});
+
+        //std::cout << "Neo4j cleared" << std::endl;
+        i = 0;
+        for (auto &[name, node] : nodes)
+        {
+            name.size();
+            node.save();
+            ++i;
+            if (i % 100 == 0)
+                std::cout << "." << std::flush;
+        }
+        std::cout << std::endl
+                  << "Nodes  saved" << std::endl;
+
+        i = 0;
+        for (auto &l : links)
+        {
+            l.save();
+            ++i;
+            if (i % 100 == 0)
+                std::cout << "." << std::flush;
+        }
+        std::cout << std::endl
+                  << "Links  saved" << std::endl; 
+        
+        if (std::experimental::filesystem::remove(file))
+            std::cout << "file " << file << " deleted.\n"; });
+    }
+
+    void handleRequest(HTTPServerRequest &request,
+                       HTTPServerResponse &response)
+    {
+
+        std::cout << "Upload started" << std::endl;
+        std::ofstream file;
+
+        auto uuid_str = Poco::UUIDGenerator().createRandom().toString();
+        uuid_str += ".xls";
+        const std::string xlsx_name{uuid_str};
+        file.open(xlsx_name, std::ofstream::binary);
+        std::istream &is = request.stream();
+        Poco::StreamCopier::copyStream(is, file, request.getContentLength());
+        std::cout << "Document uploaded" << std::endl;
+        HTMLForm form(request, is);
+
+        if (form.has("nodes"))
+        {
+            import_node_links(xlsx_name);
+        }
+        else if (form.has("capabilities"))
+        {
+            import_capabilities(xlsx_name);
+        }
+
+        response.setChunkedTransferEncoding(true);
+        response.setContentType("text/html");
+        response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_OK);
+        std::ostream &ostr = response.send();
+        ostr.flush();
     }
 
 private:

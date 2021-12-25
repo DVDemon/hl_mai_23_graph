@@ -99,7 +99,7 @@ namespace database
     void Node::save()
     {
         std::string query;
-        query = "CREATE (n:";
+        query = "MERGE (n:";
         query += _type;
         query += " {";
         query += "code:\"";
@@ -108,7 +108,7 @@ namespace database
         query += _name;
         query += "\",type:\"";
         query += _type;
-        query += "\"})";
+        query += "\"}) RETURN n";
 
         neo4j::rest_request::query_nodes({query});
     }

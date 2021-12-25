@@ -62,8 +62,11 @@ public:
     {
         static std::string author="/author"; 
         static std::string import="/import"; 
+        std::cout << "request:" << request.getURI() << std::endl;
         if (startsWith(request.getURI(),author)) return new AuthorHandler(_format);
-        if (startsWith(request.getURI(),import)) return new ImportHandler(_format);
+        if (startsWith(request.getURI(),import)) {
+            return new ImportHandler(_format);
+        }
 
 
         return new WebPageHandler(_format);

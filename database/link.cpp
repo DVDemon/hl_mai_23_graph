@@ -34,7 +34,7 @@ namespace database
         query += _source_node_code;
         query += "\"}),(b{code:\"";
         query += _target_node_code;
-        query += "\"}) CREATE (a)-[:LINK {name:\"";
+        query += "\"}) MERGE (a)-[:LINK {name:\"";
         query += _name;
         query += "\"}]->(b)";
 

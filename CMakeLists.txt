@@ -31,6 +31,8 @@ add_executable(${EXAMPLE_BINARY} main.cpp
                                  database/author.cpp
                                  database/node.cpp
                                  database/link.cpp
+                                 database/capability.cpp
+                                 database/capability_link.cpp
                                  database/import_task.cpp
                                  config/config.cpp
                                  neo4j/rest_client.cpp)
