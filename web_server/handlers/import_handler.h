@@ -31,6 +31,8 @@
 #include "../../database/link.h"
 #include "../../database/capability.h"
 #include "../../database/capability_link.h"
+#include "../../database/tech.h"
+#include "../../database/tech_link.h"
 
 #include "../neo4j/rest_client.h"
 
@@ -231,6 +233,87 @@ public:
             std::cout << "file " << file << " deleted.\n"; });
     }
 
+
+    void import_tech(const std::string &file)
+    {
+        database::ImportTask::get().add([file]()
+                                        {
+        std::cout << "Starting to process tech:" << file << std::endl;
+        OpenXLSX::XLDocument doc;
+        doc.open(file);
+        OpenXLSX::XLWorksheet wks = doc.workbook().worksheet("Анкета технологического стека");
+
+        std::cout << "Worksheet opened" << std::endl;
+
+        unsigned long i = 1;
+
+        std::map<std::string, database::Tech> nodes;
+        std::vector<database::TechLink> links;
+
+        
+        for (auto &row : wks.rows())
+        {
+            if (i < 2)
+            {
+                ++i;
+            }
+            else
+            {
+                std::vector<OpenXLSX::XLCellValue> row_vector(row.values());
+
+                if(!row_vector.empty()){
+                    std::string code= row_vector[8].get<std::string>();
+                    std::string node_code= row_vector[0].get<std::string>();
+                    std::string description= row_vector[9].get<std::string>();
+                    std::string link= row_vector[10].get<std::string>();
+                    std::string status= row_vector[12].get<std::string>();
+                    std::string type= row_vector[13].get<std::string>();
+                    std::string license= row_vector[15].get<std::string>();
+                    std::string license_type= row_vector[16].get<std::string>();
+                    
+
+                    nodes[code] = database::Tech{code,description,link,status,type,license,license_type};
+                    links.push_back(database::TechLink{node_code,code});
+                }
+
+                ++i;
+                if (i % 100 == 0)
+                        std::cout << "." << std::flush;
+            }
+        }
+
+        doc.close();
+        std::cout << std::endl
+                  << "Links processed:" << links.size() << std::endl;
+        std::cout << "Capabilities  created:" << nodes.size() << std::endl;
+
+        i = 0;
+        for (auto &[name, node] : nodes)
+        {
+            name.size();
+            node.save();
+            ++i;
+            if (i % 100 == 0)
+                std::cout << "." << std::flush;
+        }
+        std::cout << std::endl
+                  << "Nodes  saved" << std::endl;
+
+        i = 0;
+        for (auto &l : links)
+        {
+            l.save();
+            ++i;
+            if (i % 100 == 0)
+                std::cout << "." << std::flush;
+        }
+        std::cout << std::endl
+                  << "Links  saved" << std::endl; 
+        
+        if (std::experimental::filesystem::remove(file))
+            std::cout << "file " << file << " deleted.\n"; });
+    }
+
     void handleRequest(HTTPServerRequest &request,
                        HTTPServerResponse &response)
     {
@@ -254,6 +337,9 @@ public:
         else if (form.has("capabilities"))
         {
             import_capabilities(xlsx_name);
+        } else if (form.has("tech"))
+        {
+            import_tech(xlsx_name);
         }
 
         response.setChunkedTransferEncoding(true);

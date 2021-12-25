@@ -11,13 +11,9 @@ namespace database
     private:
         std::string _node_code;
         std::string _capability_code;
-        
-
     public:
         CapabilityLink();
         CapabilityLink(const std::string& node_code,const std::string& capability_code);
-
-
         void save();
         Poco::JSON::Object::Ptr toJSON() const;
     };
