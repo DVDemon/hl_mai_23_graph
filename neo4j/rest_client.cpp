@@ -99,6 +99,36 @@ namespace neo4j
         return result;
     }
 
+    std::vector<std::string> rest_request::query_values(const std::vector<std::string> &params)
+    {
+        std::vector<std::string> result;
+
+        try
+        {
+            Poco::JSON::Object::Ptr jobject = post_object( params);
+            Poco::JSON::Array::Ptr datasets = jobject->getArray("results");
+            if (datasets->size() == 1)
+            {
+                Poco::JSON::Array::Ptr records = datasets->getObject(0)->getArray("data");
+
+                //std::cout << "records:" << records->size() << std::endl;
+                //Poco::JSON::Stringifier::stringify(records, std::cout);
+                for (size_t i = 0; i < records->size(); ++i)
+                {
+                    
+                    std::string ptr = records->getObject(i)->getArray("row")->getElement<std::string>(0);////getObject(0)->getValue<std::string>("row");           
+                    result.push_back(ptr);
+                }
+            }
+        }
+        catch (std::exception ex)
+        {
+            std::cerr << "neo4j exception:" << ex.what() << std::endl;
+        }
+
+        return result;
+    }
+
     std::vector<result_pair_collection_t> rest_request::query_nodes(const std::vector<std::string> &params)
     {
         std::vector<result_pair_collection_t> result;
@@ -110,10 +140,10 @@ namespace neo4j
             if (datasets->size() == 1)
             {
                 Poco::JSON::Array::Ptr records = datasets->getObject(0)->getArray("data");
-
-                //std::cout << "records:" << records->size() << std::endl;
+                Poco::JSON::Stringifier::stringify(records, std::cout);
                 for (size_t i = 0; i < records->size(); ++i)
                 {
+                    
                     Poco::JSON::Object::Ptr ptr = records->getObject(i)->getArray("row")->getObject(0);
                     result_pair_collection_t element;
                     std::vector<std::string> names;

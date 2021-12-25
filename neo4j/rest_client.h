@@ -25,6 +25,7 @@ namespace neo4j{
         static const std::string & get_password();
         static void config(const std::string &host,const std::string& port,const std::string& database,const std::string& user,const std::string& login);
         static std::vector<result_pair_collection_t> query_nodes(const std::vector<std::string>& params);
+        static std::vector<std::string> query_values(const std::vector<std::string> &params);
 
     };
 }

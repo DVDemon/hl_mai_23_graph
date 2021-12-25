@@ -41,6 +41,7 @@ using Poco::Util::HelpFormatter;
 #include "handlers/author_handler.h"
 #include "handlers/web_page_handler.h"
 #include "handlers/import_handler.h"
+#include "handlers/node_handler.h"
 
 
 static bool startsWith(const std::string& str, const std::string& prefix)
@@ -62,10 +63,14 @@ public:
     {
         static std::string author="/author"; 
         static std::string import="/import"; 
+        static std::string node="/node"; 
         std::cout << "request:" << request.getURI() << std::endl;
         if (startsWith(request.getURI(),author)) return new AuthorHandler(_format);
         if (startsWith(request.getURI(),import)) {
             return new ImportHandler(_format);
+        }
+        if (startsWith(request.getURI(),node)) {
+            return new NodeHandler(_format);
         }
 
 

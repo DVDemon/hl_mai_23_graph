@@ -22,6 +22,9 @@ namespace database
         Poco::JSON::Object::Ptr toJSON() const;
 
         static Node              load(const std::string& code);
+        static std::vector<std::string> types();
+        static std::vector<Node> search(const std::string& pattern);
+        static std::vector<Node> by_type(const std::string& type);
         static std::vector<Node> load_friends(const std::string& code);
 
         const std::string &code() const;
