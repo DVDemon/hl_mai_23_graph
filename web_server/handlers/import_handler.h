@@ -99,8 +99,18 @@ public:
                 //std::cout<< "link percent:" << link_percent << std::endl;
                 std::string link_name = row_vector[13].get<std::string>();
 
-                nodes[source_code] = database::Node{source_code, source_name, source_type};
-                nodes[target_code] = database::Node{target_code, target_name, target_type};
+                database::Node a,b;
+                a.label() = source_type;
+                a.get()["code"] = source_code;
+                a.get()["name"] = source_name;
+
+                nodes[source_code] = a;
+
+                b.label() = target_type;
+                b.get()["code"] = target_code;
+                b.get()["name"] = target_name;
+
+                nodes[target_code] = b;
 
                 links.push_back(database::Link(link_name, 0, source_code, target_code));
 

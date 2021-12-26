@@ -59,16 +59,22 @@ private:
     }
     void process_type(std::ostream &ostr, const std::string &pattern)
     {
-        auto results = database::Node::by_type(pattern);
+        auto results = database::Node::by_label(pattern);
         Poco::JSON::Array arr;
         for (auto s : results)
             arr.add(s.toJSON());
         Poco::JSON::Stringifier::stringify(arr, ostr);
     }
 
+    void process_code(std::ostream &ostr, const std::string &code)
+    {
+        auto result = database::Node::load(code);
+        Poco::JSON::Stringifier::stringify(result.toJSON(), ostr);
+    }
+
      void process_types(std::ostream &ostr)
     {
-        auto results = database::Node::types();
+        auto results = database::Node::labels();
         Poco::JSON::Array arr;
         ostr  << "[";
         for (auto s : results){
@@ -97,6 +103,8 @@ public:
             if (form.has("type")) process_type(ostr, form.get("type").c_str());
              else
             if (form.has("types")) process_types(ostr);
+             else
+            if (form.has("code")) process_code(ostr, form.get("code").c_str());
             response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_OK);
         }
         catch (...)

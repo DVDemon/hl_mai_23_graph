@@ -8,20 +8,27 @@ namespace database
     {
     }
 
-    Node::Node(const std::string &code, const std::string &name, const std::string &type) : _code(code),
-                                                                                            _name(name),
-                                                                                            _type(type)
-    {
+    std::string                         &Node::label(){
+        return _label;
+    }
+
+    std::map<std::string,std::string>   &Node::get(){
+        return _map;
     }
 
     Poco::JSON::Object::Ptr Node::toJSON() const
     {
         Poco::JSON::Object::Ptr root = new Poco::JSON::Object();
 
-        root->set("code", _code);
-        root->set("name", _name);
-        root->set("type", _type);
+        root->set("label", _label);
 
+        Poco::JSON::Object::Ptr props = new Poco::JSON::Object();
+        for(auto& [n,m] : _map){
+            props->set(n,m);
+        }
+
+
+        root->set("properties", props);
         return root;
     }
 
@@ -35,21 +42,13 @@ namespace database
             query = "MATCH (a {";
             query += "code:\"";
             query += code;
-            query += "\"}) RETURN a";
+            query += "\"}) RETURN a,labels(a)";
 
             auto res = neo4j::rest_request::query_nodes({query});
             if (res.size() > 0)
             {
                 std::vector<std::pair<std::string, std::string>> arr = res[0];
-                for (auto p : arr)
-                {
-                    if (p.first == "code")
-                        a._code = p.second;
-                    if (p.first == "name")
-                        a._name = p.second;
-                    if (p.first == "type")
-                        a._type = p.second;
-                }
+                for (auto p : arr) a.get()[p.first] = p.second;
             }
             return a;
         }
@@ -60,7 +59,7 @@ namespace database
         }
     }
 
-    std::vector<std::string> Node::types(){
+    std::vector<std::string> Node::labels(){
         try
         {
             std::vector<std::string> result;
@@ -80,28 +79,21 @@ namespace database
         }
     }
 
-    std::vector<Node> Node::by_type(const std::string& type){
+    std::vector<Node> Node::by_label(const std::string& label){
         try
         {
 
             std::vector<Node> result;
             std::string query;
-            query = "MATCH (a) WHERE a.type CONTAINS \"";
-            query += type;
-            query += "\" RETURN a";
+            query = "MATCH (a:";
+            query += label;
+            query += ")  RETURN a,labels(a)";
             auto res = neo4j::rest_request::query_nodes({query});
             for (auto &r : res)
             {
                 Node a;
-                for (auto p : r)
-                {
-                    if (p.first == "code")
-                        a._code = p.second;
-                    if (p.first == "name")
-                        a._name = p.second;
-                    if (p.first == "type")
-                        a._type = p.second;
-                }
+                for (auto p : r) a.get()[p.first] = p.second;
+
                 result.push_back(a);
             }
             return result;
@@ -121,20 +113,13 @@ namespace database
             std::string query;
             query = "MATCH (a) WHERE a.name CONTAINS \"";
             query += pattern;
-            query += "\" RETURN a";
+            query += "\" RETURN a,labels(a)";
             auto res = neo4j::rest_request::query_nodes({query});
             for (auto &r : res)
             {
                 Node a;
-                for (auto p : r)
-                {
-                    if (p.first == "code")
-                        a._code = p.second;
-                    if (p.first == "name")
-                        a._name = p.second;
-                    if (p.first == "type")
-                        a._type = p.second;
-                }
+                for (auto p : r) a.get()[p.first] = p.second;
+
                 result.push_back(a);
             }
             return result;
@@ -161,15 +146,7 @@ namespace database
             for (auto &r : res)
             {
                 Node a;
-                for (auto p : r)
-                {
-                    if (p.first == "code")
-                        a._code = p.second;
-                    if (p.first == "name")
-                        a._name = p.second;
-                    if (p.first == "type")
-                        a._type = p.second;
-                }
+                for (auto p : r) a.get()[p.first] = p.second;
                 result.push_back(a);
             }
             return result;
@@ -185,30 +162,17 @@ namespace database
     {
         std::string query;
         query = "MERGE (n:";
-        query += _type;
+        query += _label;
         query += " {";
-        query += "code:\"";
-        query += _code;
-        query += "\",name:\"";
-        query += _name;
-        query += "\",type:\"";
-        query += _type;
-        query += "\"}) RETURN n";
+        for(auto& [n,m] : get()){
+            query += n;
+            query += ":\"";
+            query += m;
+            query += "\",";
+        }
+        query = query.substr(0,query.size()-1);
+        query += "}) RETURN n";
 
         neo4j::rest_request::query_nodes({query});
-    }
-
-    const std::string &Node::code() const
-    {
-        return _code;
-    }
-
-    const std::string &Node::name() const
-    {
-        return _name;
-    }
-    const std::string &Node::type() const
-    {
-        return _type;
     }
 }

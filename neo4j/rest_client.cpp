@@ -64,10 +64,11 @@ namespace neo4j
             Poco::JSON::Array::Ptr array = new Poco::JSON::Array();
 
             std::for_each(std::begin(params), std::end(params), [&array](const std::string &value)
-                          {
+                {
                     Poco::JSON::Object::Ptr item = new Poco::JSON::Object();
                     item->set("statement", value);
-                    array->add(item); });
+                    array->add(item); 
+                });
             request->set("statements", array);
             Poco::JSON::Stringifier::stringify(request, ostr);
         }
@@ -84,7 +85,7 @@ namespace neo4j
         std::copy(std::istream_iterator<char>(rs), std::istream_iterator<char>(),
                   std::back_inserter(str));
 
-        //std::cout << str << std::endl;
+ //       std::cout << str << std::endl;
 
         Poco::JSON::Object::Ptr result;
         if ((response.getStatus() == 200) || (response.getStatus() == 201))
