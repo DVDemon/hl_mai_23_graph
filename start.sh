@@ -1,1 +1,1 @@
-sudo ./build/graphdb_server --host=127.0.0.1  --port=7474 --login=neo4j --password=stud --database=neo4j
+./build/graphdb_server --host=127.0.0.1  --port=7474 --login=neo4j --password=stud --database=neo4j

@@ -141,7 +141,7 @@ namespace neo4j
             if (datasets->size() == 1)
             {
                 Poco::JSON::Array::Ptr records = datasets->getObject(0)->getArray("data");
-                Poco::JSON::Stringifier::stringify(records, std::cout);
+                //Poco::JSON::Stringifier::stringify(records, std::cout);
                 for (size_t i = 0; i < records->size(); ++i)
                 {
                     

@@ -3,26 +3,24 @@
 
 namespace database
 {
-    Link::Link() : _percent(0)
+    Link::Link()
     {
     }
 
-    Link::Link(const std::string &name, int percent,const std::string& source_node_code,const std::string& target_node_code): 
-        _name (name), 
-        _percent(percent),
-        _source_node_code(source_node_code),
-        _target_node_code(target_node_code)
+
+    Poco::JSON::Object::Ptr Link::toJSON() const
     {
-    }
+       Poco::JSON::Object::Ptr root = new Poco::JSON::Object();
 
-    Poco::JSON::Object::Ptr Link::toJSON() const{
-        Poco::JSON::Object::Ptr root = new Poco::JSON::Object();
+        root->set("label", _label);
 
-        root->set("name", _name);
-        root->set("percent", _percent);
-        root->set("source_node_code", _source_node_code);
-        root->set("target_node_code", _target_node_code);
+        Poco::JSON::Object::Ptr props = new Poco::JSON::Object();
+        for(auto& [n,m] : _map){
+            props->set(n,m);
+        }
 
+
+        root->set("properties", props);
         return root;
     }
 
@@ -34,27 +32,37 @@ namespace database
         query += _source_node_code;
         query += "\"}),(b{code:\"";
         query += _target_node_code;
-        query += "\"}) MERGE (a)-[:LINK {name:\"";
-        query += _name;
-        query += "\"}]->(b)";
+        query += "\"}) MERGE (a)-[:";
+        query += _label;
+        query += " {";
+        for(auto& [n,m] : get()){
+            query += n;
+            query += ":\"";
+            query += m;
+            query += "\",";
+        }
+        query = query.substr(0,query.size()-1);
+        query += "}]->(b)";
 
         neo4j::rest_request::query_nodes({query});
     }
 
-    const std::string & Link::source_node_code() const{
+    std::string &Link::source_node_code()
+    {
         return _source_node_code;
     }
 
-    const std::string & Link::target_node_code() const{
+    std::string &Link::target_node_code()
+    {
         return _target_node_code;
     }
-    const std::string &Link::name() const
-    {
-        return _name;
-    }
 
-    int Link::percent() const
+    std::string &Link::label()
     {
-        return _percent;
+        return _label;
+    }
+    std::map<std::string, std::string> &Link::get()
+    {
+        return _map;
     }
 }

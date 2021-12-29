@@ -11,6 +11,7 @@ namespace database
     private:
         std::string _node_code;
         std::string _tech_code;
+
     public:
         TechLink();
         TechLink(const std::string& node_code,const std::string& tech_code);

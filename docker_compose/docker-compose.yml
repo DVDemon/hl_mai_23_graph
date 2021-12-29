@@ -1,0 +1,41 @@
+version: '3.3'
+services:
+  neo4j-node: 
+    image: neo4j
+    container_name: neo4j-node
+    restart: unless-stopped
+    ports:
+      - "7473:7473"
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - ./conf:/conf
+      - ./data:/data
+      - ./import:/import
+      - ./logs:/logs
+      - ./plugins:/plugins
+    environment: 
+      # Raise memory limits
+      - NEO4J_dbms_memory_pagecache_size=1G
+      - NEO4J_dbms.memory.heap.initial_size=1G
+      - NEO4J_dbms_memory_heap_max__size=1G
+    networks:
+      - my-network
+  server:
+    image: ddzuba/graphdb_server
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "neo4j-node"
+    environment:
+      - DATABASE_HOST=neo4j-node
+      - DATABASE_PORT=7474
+      - DATABASE_USER=neo4j
+      - DATABASE_PASSWORD=neo4j
+      - DATABASE_NAME=neo4j
+    networks:
+      - my-network
+networks:
+  my-network:
+    driver: "bridge"
+    external: false

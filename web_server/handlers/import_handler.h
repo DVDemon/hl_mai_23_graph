@@ -101,18 +101,25 @@ public:
 
                 database::Node a,b;
                 a.label() = source_type;
+                a.get()["type"] = source_type;
                 a.get()["code"] = source_code;
                 a.get()["name"] = source_name;
 
                 nodes[source_code] = a;
 
                 b.label() = target_type;
+                b.get()["type"] = target_type;
                 b.get()["code"] = target_code;
                 b.get()["name"] = target_name;
 
                 nodes[target_code] = b;
 
-                links.push_back(database::Link(link_name, 0, source_code, target_code));
+                database::Link link;
+                link.source_node_code()= source_code;
+                link.target_node_code()= target_code;
+                link.get()["name"] = link_name;
+                link.label() = link_name;
+                links.push_back(link);
 
                 ++i;
                 if (i % 100 == 0)
@@ -211,11 +218,6 @@ public:
                   << "Links processed:" << links.size() << std::endl;
         std::cout << "Capabilities  created:" << nodes.size() << std::endl;
 
-        //neo4j::rest_request::query_nodes({"MATCH (n) DETACH DELETE n"});
-        //neo4j::rest_request::query_nodes({"CREATE CONSTRAINT ON (n) ASSERT (n.code) IS UNIQUE"});
-        //neo4j::rest_request::query_nodes({"CREATE INDEX FOR (m) ON (m.code)"});
-
-        //std::cout << "Neo4j cleared" << std::endl;
         i = 0;
         for (auto &[name, node] : nodes)
         {

@@ -171,8 +171,25 @@ namespace database
             query += "\",";
         }
         query = query.substr(0,query.size()-1);
-        query += "}) RETURN n";
-
+        query += "}) ON MATCH set n+=";
+        query += " {";
+        for(auto& [n,m] : get()){
+            query += n;
+            query += ":\"";
+            query += m;
+            query += "\",";
+        }
+        query = query.substr(0,query.size()-1);
+        query += "} ON CREATE set n=";
+        query += " {";
+        for(auto& [n,m] : get()){
+            query += n;
+            query += ":\"";
+            query += m;
+            query += "\",";
+        }
+        query = query.substr(0,query.size()-1);     
+        query += "} RETURN n";
         neo4j::rest_request::query_nodes({query});
     }
 }

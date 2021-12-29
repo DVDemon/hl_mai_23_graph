@@ -4,7 +4,13 @@ docker/data/*
 docker/import/*
 docker/logs/*
 docker/plugin/*
+docker_compose/conf/*
+docker_compose/data/*
+docker_compose/import/*
+docker_compose/logs/*
+docker_compose/plugin/*
 .vscode/*
+libs/*
 
 # xls
 *.xls
