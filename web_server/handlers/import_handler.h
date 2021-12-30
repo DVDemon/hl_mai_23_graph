@@ -29,11 +29,6 @@
 
 #include "../../database/node.h"
 #include "../../database/link.h"
-#include "../../database/capability.h"
-#include "../../database/capability_link.h"
-#include "../../database/tech.h"
-#include "../../database/tech_link.h"
-
 #include "../neo4j/rest_client.h"
 
 using Poco::DateTimeFormat;
@@ -117,7 +112,7 @@ public:
                 database::Link link;
                 link.source_node_code()= source_code;
                 link.target_node_code()= target_code;
-                link.get()["name"] = link_name;
+                link.get()["type"] = link_name;
                 link.label() = link_name;
                 links.push_back(link);
 
@@ -177,8 +172,8 @@ public:
 
         unsigned long i = 1;
 
-        std::map<std::string, database::Capability> nodes;
-        std::vector<database::CapabilityLink> links;
+        std::map<std::string, database::Node> nodes;
+        std::vector<database::Link> links;
 
         
         for (auto &row : wks.rows())
@@ -203,8 +198,19 @@ public:
                     owner = row_vector[5].get<std::string>();
                     node_code = row_vector[7].get<std::string>();
 
-                    nodes[code] = database::Capability{code,name,owner};
-                    links.push_back(database::CapabilityLink{node_code,code});
+                    database::Node a;
+                    a.label() = "Capability";
+                    a.get()["type"] = "Capability";
+                    a.get()["code"] = code;
+                    a.get()["name"] = name;
+                    a.get()["owner"] = owner;
+                    nodes[code] = a;
+                    database::Link link;
+                    link.label() = "CAPABILITY_LINK";
+                    link.get()["type"]= "CAPABILITY_LINK";
+                    link.source_node_code() = code;
+                    link.target_node_code() = node_code;
+                    links.push_back(link);
                 }
 
                 ++i;
@@ -259,8 +265,8 @@ public:
 
         unsigned long i = 1;
 
-        std::map<std::string, database::Tech> nodes;
-        std::vector<database::TechLink> links;
+        std::map<std::string, database::Node> nodes;
+        std::vector<database::Link> links;
 
         
         for (auto &row : wks.rows())
@@ -283,9 +289,24 @@ public:
                     std::string license= row_vector[15].get<std::string>();
                     std::string license_type= row_vector[16].get<std::string>();
                     
+                    database::Node a;
+                    a.label() = "Tech";
+                    a.get()["code"]=code;
+                    a.get()["description"]=description;
+                    a.get()["link"]=link;
+                    a.get()["status"]=status;
+                    a.get()["type"]=type;
+                    a.get()["license"]=license;
+                    a.get()["license_type"]=license_type;
 
-                    nodes[code] = database::Tech{code,description,link,status,type,license,license_type};
-                    links.push_back(database::TechLink{node_code,code});
+                    nodes[code] = a;
+
+                    database::Link l;
+                    l.label() ="TECH_LINK";
+                    l.source_node_code() = code;
+                    l.target_node_code() = node_code;
+                    l.get()["type"]= "TECH_LINK";
+                    links.push_back(l);
                 }
 
                 ++i;
