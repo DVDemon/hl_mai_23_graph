@@ -7,6 +7,7 @@
 #include <string>
 #include <cstdlib>
 #include <sstream>
+#include <experimental/filesystem>
 
 std::string ssystem (const char *command) {
     char tmpname [L_tmpnam];
@@ -37,12 +38,16 @@ namespace database
         return _instance;
     }
 
+    void Puml::wait_for(const std::string & key){
+        if(_futures.find(key)!=std::end(_futures)) _futures[key].get();
+    }
+
     std::string Puml::generate_puml(std::vector<Node> &nodes,
                                     std::vector<Link> &links)
     {
         std::string result= Poco::UUIDGenerator().createRandom().toString();
 
-        _futures[result]=(std::async(std::launch::async,
+        _futures[result]=std::async(std::launch::async,
                     [nodes,links,result](){
                         // create puml
                         std::ofstream   file;
@@ -89,8 +94,9 @@ namespace database
                         // run puml generator
                         std::string command="java -jar plantuml.jar "+file_name;
                         ssystem(command.c_str());
+                        std::experimental::filesystem::remove(file_name);
                         
-                    }));
-        return result+".png";
+                    });
+        return result;
     }
 }

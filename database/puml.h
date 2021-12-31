@@ -18,6 +18,7 @@ namespace database
 
         public:
             static Puml& get();
+            void wait_for(const std::string & key);
             std::string generate_puml(std::vector<Node> & nodes,
                                         std::vector<Link> & links);
 

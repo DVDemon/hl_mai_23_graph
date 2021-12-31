@@ -629,14 +629,14 @@ public:
             if (mime_types.find(extension) != std::end(mime_types))
             {
                 response.setContentType(mime_types[extension]);
-                std::cout << mime_types[extension] << std::endl;
+                //std::cout << mime_types[extension] << std::endl;
             }
             else
                 response.setContentType("text/html");
         }
         else
             response.setContentType("text/html");
-        //
+        
 
         std::ostream &ostr = response.send();
 
@@ -650,7 +650,7 @@ public:
 
         if (std::experimental::filesystem::exists(name))
         {
-            std::cout << "WebPage:" << name << " size:" << std::experimental::filesystem::file_size(name) << std::endl;
+            //std::cout << "WebPage:" << name << " size:" << std::experimental::filesystem::file_size(name) << std::endl;
             std::ifstream file;
             file.open(name, std::ios::binary);
 

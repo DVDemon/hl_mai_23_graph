@@ -22,6 +22,7 @@
 #include <iostream>
 #include <iostream>
 #include <fstream>
+#include <experimental/filesystem>
 
 using Poco::DateTimeFormat;
 using Poco::DateTimeFormatter;
@@ -70,13 +71,14 @@ private:
         Poco::JSON::Stringifier::stringify(arr, ostr);
     }
 
-    void process_code(std::ostream &ostr, const std::string &code, bool image)
+    void process_code(std::ostream &ostr, const std::string &code, bool image,std::function<void(const std::string&)> content_type)
     {
         auto result = database::Node::load(code);
-
         if (!image)
         {
+            content_type( "text/html");
             Poco::JSON::Stringifier::stringify(result.toJSON(), ostr);
+
         }
         else
         {
@@ -85,7 +87,25 @@ private:
             std::vector<database::Node> result_nodes;
             database::Link::load_node_links(code, result_links, result_nodes);
             result_nodes.push_back(result);
-            std::cout << "Generate puml:" << database::Puml::get().generate_puml(result_nodes, result_links) << std::endl;
+            std::string key = database::Puml::get().generate_puml(result_nodes, result_links);
+            //std::cout << "Generate puml:" << key << std::endl;
+            database::Puml::get().wait_for(key);
+            //std::cout << "Generated:" << key << std::endl;
+            std::string name = "puml/"+key+".png";
+            if (std::experimental::filesystem::exists(name))
+            {
+                content_type( "image/png");
+                std::ifstream file;
+                file.open(name, std::ios::binary);
+
+                std::copy(
+                    std::istreambuf_iterator<char>(file),
+                    std::istreambuf_iterator<char>(),
+                    std::ostreambuf_iterator<char>(ostr));
+                file.close();
+                std::experimental::filesystem::remove(name);
+            }
+            return ;
         }
     }
 
@@ -111,19 +131,29 @@ public:
     {
         HTMLForm form(request, request.stream());
         response.setChunkedTransferEncoding(true);
-        response.setContentType("application/json");
+        //
         std::ostream &ostr = response.send();
 
         try
         {
             if (form.has("search"))
+            {
                 process_search(ostr, form.get("search").c_str());
+                response.setContentType("application/json");
+            }
             else if (form.has("type"))
+            {
                 process_type(ostr, form.get("type").c_str());
+                response.setContentType("application/json");
+            }
             else if (form.has("types"))
+            {
                 process_types(ostr);
-            else if (form.has("code"))
-                process_code(ostr, form.get("code").c_str(), form.has("image"));
+                response.setContentType("application/json");
+            }
+            else if (form.has("code")){
+                process_code(ostr, form.get("code").c_str(), form.has("image"),[&response](const std::string& str){response.setContentType(str);});
+            }
             response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_OK);
         }
         catch (...)
