@@ -39,7 +39,6 @@ using Poco::Util::ServerApplication;
 
 #include "http_request_factory.h"
 #include "../config/config.h"
-#include "../database/author.h"
 #include "../neo4j/rest_client.h"
 
 
@@ -110,7 +109,7 @@ protected:
                       [[maybe_unused]] const std::string &value)
     {
         std::cout << "init db" << std::endl;
-        database::Author::init();
+
     }
     void handleLogin([[maybe_unused]] const std::string &name,
                      [[maybe_unused]] const std::string &value)

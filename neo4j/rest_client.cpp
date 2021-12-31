@@ -74,7 +74,7 @@ namespace neo4j
         }
 
         request.setContentLength(ostr.str().length());
-        //std::cout << ostr.str() << std::endl;
+        std::cout << ostr.str() << std::endl;
         session.sendRequest(request) << ostr.str() << std::flush;
 
         Poco::Net::HTTPResponse response;
@@ -85,7 +85,7 @@ namespace neo4j
         std::copy(std::istream_iterator<char>(rs), std::istream_iterator<char>(),
                   std::back_inserter(str));
 
- //       std::cout << str << std::endl;
+        //std::cout << str << std::endl;
 
         Poco::JSON::Object::Ptr result;
         if ((response.getStatus() == 200) || (response.getStatus() == 201))
@@ -111,15 +111,20 @@ namespace neo4j
             if (datasets->size() == 1)
             {
                 Poco::JSON::Array::Ptr records = datasets->getObject(0)->getArray("data");
+                
+
 
                 //std::cout << "records:" << records->size() << std::endl;
                 //Poco::JSON::Stringifier::stringify(records, std::cout);
                 for (size_t i = 0; i < records->size(); ++i)
                 {
                     
-                    std::string ptr = records->getObject(i)->getArray("row")->getElement<std::string>(0);////getObject(0)->getValue<std::string>("row");           
+                    std::string ptr = records->getObject(i)->getArray("row")->getElement<std::string>(0);////getObject(0)->getValue<std::string>("row");
+      
                     result.push_back(ptr);
                 }
+
+                
             }
         }
         catch (std::exception ex)
@@ -141,17 +146,31 @@ namespace neo4j
             if (datasets->size() == 1)
             {
                 Poco::JSON::Array::Ptr records = datasets->getObject(0)->getArray("data");
+                Poco::JSON::Array::Ptr meta_records = datasets->getObject(0)->getArray("meta");
+                //std::string ptr_meta = records->getObject(0)->getArray("meta")->getElement<std::string>(0);
+                //std::cout << ptr_meta << std::endl;     
                 //Poco::JSON::Stringifier::stringify(records, std::cout);
                 for (size_t i = 0; i < records->size(); ++i)
                 {
                     
                     Poco::JSON::Object::Ptr ptr = records->getObject(i)->getArray("row")->getObject(0);
+                    Poco::JSON::Object::Ptr ptr_meta = records->getObject(i)->getArray("meta")->getObject(0);
+                    
+
                     result_pair_collection_t element;
                     std::vector<std::string> names;
                     ptr->getNames(names);
                     for(std::string &name: names){
                         //std::cout << name << ":" << ptr->getValue<std::string>(name) << std::endl;
                         element.push_back(result_pair_t(name,ptr->getValue<std::string>(name)));
+                    }
+
+                    // add meta
+                    ptr_meta->getNames(names);
+                    for(std::string &name: names){
+                        //std::cout << name << ":" << ptr->getValue<std::string>(name) << std::endl;
+                        if(name=="id")
+                        element.push_back(result_pair_t(name,ptr_meta->getValue<std::string>(name)));
                     }
                     result.push_back(element);
                 }

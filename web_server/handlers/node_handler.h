@@ -44,6 +44,8 @@ using Poco::Util::OptionSet;
 using Poco::Util::ServerApplication;
 
 #include "../../database/node.h"
+#include "../../database/puml.h"
+
 #include <map>
 
 class NodeHandler : public HTTPRequestHandler
@@ -56,6 +58,8 @@ private:
         for (auto s : results)
             arr.add(s.toJSON());
         Poco::JSON::Stringifier::stringify(arr, ostr);
+        // std::vector<database::Link> links;
+        // std::cout << "Generate puml:" << database::Puml::get().generate_puml(results,links) << std::endl;
     }
     void process_type(std::ostream &ostr, const std::string &pattern)
     {
@@ -66,21 +70,35 @@ private:
         Poco::JSON::Stringifier::stringify(arr, ostr);
     }
 
-    void process_code(std::ostream &ostr, const std::string &code)
+    void process_code(std::ostream &ostr, const std::string &code, bool image)
     {
         auto result = database::Node::load(code);
-        Poco::JSON::Stringifier::stringify(result.toJSON(), ostr);
+
+        if (!image)
+        {
+            Poco::JSON::Stringifier::stringify(result.toJSON(), ostr);
+        }
+        else
+        {
+
+            std::vector<database::Link> result_links;
+            std::vector<database::Node> result_nodes;
+            database::Link::load_node_links(code, result_links, result_nodes);
+            result_nodes.push_back(result);
+            std::cout << "Generate puml:" << database::Puml::get().generate_puml(result_nodes, result_links) << std::endl;
+        }
     }
 
-     void process_types(std::ostream &ostr)
+    void process_types(std::ostream &ostr)
     {
         auto results = database::Node::labels();
         Poco::JSON::Array arr;
-        ostr  << "[";
-        for (auto s : results){
-            ostr  << "{\"type\":\"" << s <<"\"},";
+        ostr << "[";
+        for (auto s : results)
+        {
+            ostr << "{\"type\":\"" << s << "\"},";
         }
-        ostr  << "]";
+        ostr << "]";
     }
 
 public:
@@ -98,13 +116,14 @@ public:
 
         try
         {
-            if (form.has("search")) process_search(ostr, form.get("search").c_str());
-             else
-            if (form.has("type")) process_type(ostr, form.get("type").c_str());
-             else
-            if (form.has("types")) process_types(ostr);
-             else
-            if (form.has("code")) process_code(ostr, form.get("code").c_str());
+            if (form.has("search"))
+                process_search(ostr, form.get("search").c_str());
+            else if (form.has("type"))
+                process_type(ostr, form.get("type").c_str());
+            else if (form.has("types"))
+                process_types(ostr);
+            else if (form.has("code"))
+                process_code(ostr, form.get("code").c_str(), form.has("image"));
             response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_OK);
         }
         catch (...)

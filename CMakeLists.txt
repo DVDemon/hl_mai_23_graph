@@ -28,10 +28,10 @@ link_directories("/usr/local/lib")
 
 
 add_executable(${EXAMPLE_BINARY} main.cpp
-                                 database/author.cpp
                                  database/node.cpp
                                  database/link.cpp
                                  database/import_task.cpp
+                                 database/puml.cpp
                                  config/config.cpp
                                  neo4j/rest_client.cpp)
 

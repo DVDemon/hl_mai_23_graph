@@ -20,6 +20,7 @@
 #include "Poco/Util/HelpFormatter.h"
 #include "Poco/StreamCopier.h"
 #include "Poco/UUIDGenerator.h"
+#include "Poco/Net/HTMLForm.h"
 
 #include <iostream>
 #include <fstream>
@@ -361,7 +362,7 @@ public:
         std::istream &is = request.stream();
         Poco::StreamCopier::copyStream(is, file, request.getContentLength());
         std::cout << "Document uploaded" << std::endl;
-        HTMLForm form(request, is);
+        Poco::Net::HTMLForm form(request, is);
 
         if (form.has("nodes"))
         {

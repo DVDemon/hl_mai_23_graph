@@ -28,6 +28,7 @@ namespace database
 
         std::string                         &label();
         std::map<std::string,std::string>   &get();
+        const std::map<std::string,std::string>   &get() const;
     };
 }
 

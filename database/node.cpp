@@ -16,6 +16,10 @@ namespace database
         return _map;
     }
 
+    const std::map<std::string,std::string>   &Node::get() const{
+        return _map;
+    }
+
     Poco::JSON::Object::Ptr Node::toJSON() const
     {
         Poco::JSON::Object::Ptr root = new Poco::JSON::Object();
