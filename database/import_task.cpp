@@ -27,8 +27,8 @@ namespace database
                     try{
                         task();
                         
-                    } catch(std::exception ex){
-                        std::cerr << "Import error:" << ex.what();
+                    } catch(std::exception *ex){
+                        std::cerr << "Import error:" << ex->what();
                     }
                     task_mtx.lock();
                     ImportTask::get().tasks.erase(ImportTask::get().tasks.find(id));

@@ -127,9 +127,9 @@ namespace neo4j
                 
             }
         }
-        catch (std::exception ex)
+        catch (std::exception *ex)
         {
-            std::cerr << "neo4j exception:" << ex.what() << std::endl;
+            std::cerr << "neo4j exception:" << ex->what() << std::endl;
         }
 
         return result;
@@ -176,9 +176,9 @@ namespace neo4j
                 }
             }
         }
-        catch (std::exception ex)
+        catch (std::exception *ex)
         {
-            std::cerr << "neo4j exception:" << ex.what() << std::endl;
+            std::cerr << "neo4j exception:" << ex->what() << std::endl;
         }
 
         return result;
