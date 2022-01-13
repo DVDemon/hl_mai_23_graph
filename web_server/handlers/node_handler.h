@@ -88,9 +88,9 @@ private:
             database::Link::load_node_links(code, result_links, result_nodes);
             result_nodes.push_back(result);
             std::string key = database::Puml::get().generate_puml(result_nodes, result_links);
-            //std::cout << "Generate puml:" << key << std::endl;
+            std::cout << "Generate puml:" << key << std::endl;
             database::Puml::get().wait_for(key);
-            //std::cout << "Generated:" << key << std::endl;
+            std::cout << "Generated:" << key << std::endl;
             std::string name = "puml/"+key+".png";
             if (std::experimental::filesystem::exists(name))
             {

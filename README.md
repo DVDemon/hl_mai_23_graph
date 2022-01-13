@@ -8,15 +8,8 @@ https://neo4j.com/developer/cypher/
 ## API
 https://neo4j-client.net/doc/latest/neo4j-client_8h.html
 
-## Library
-https://github.com/cleishm/libneo4j-client
-$ sudo apt-get install libedit-dev libcypher-parser-dev
-$ git clone https://github.com/cleishm/libneo4j-client.git
-$ cd libneo4j-client
-$ ./autogen.sh
-$ ./configure
-$ make clean check
-$ sudo make install
+## Poco
+https://github.com/pocoproject/poco.git 
 
 ## OpenXLS
 https://github.com/troldal/OpenXLSX
@@ -28,7 +21,6 @@ http://192.168.40.129:7474/browser/
 https://learning.oreilly.com/library/view/beginning-neo4j/9781484212271/9781484212288_Ch04.xhtml
 
 ## puml
-
 sudo apt install graphviz
 https://github.com/plantuml/plantuml/releases/tag/v1.2021.16
 
