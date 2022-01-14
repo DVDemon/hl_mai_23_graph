@@ -49,6 +49,11 @@ namespace database
 
         _futures[result]=std::async(std::launch::async,
                     [nodes,links,result](){
+
+                        // create directory
+                        if(!std::experimental::filesystem::exists("puml"))
+                        std::experimental::filesystem::create_directory("puml");
+
                         // create puml
                         std::ofstream   file;
                         std::string     file_name="puml/"+result+".puml";
