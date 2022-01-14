@@ -16,9 +16,7 @@ namespace database
         {
             std::cout << "background worker started ..." << std::endl;
             while(true){
-                //std::cout << "[" << std::flush;
                 task_mtx.lock();
-                //std::cout << "]" << std::flush;
                 if(!ImportTask::get().tasks.empty()){
                     
                     auto [id,task] = *std::begin(ImportTask::get().tasks);
@@ -39,7 +37,6 @@ namespace database
             
             std::cout << "background worker stopes ..." << std::endl;
             });
-       //th.detach();
     }
 
     ImportTask& ImportTask::get()
