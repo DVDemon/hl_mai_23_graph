@@ -252,7 +252,6 @@ public:
             std::cout << "file " << file << " deleted.\n"; });
     }
 
-
     void import_tech(const std::string &file)
     {
         database::ImportTask::get().add([file]()
@@ -348,6 +347,110 @@ public:
             std::cout << "file " << file << " deleted.\n"; });
     }
 
+
+    void import_sequence(const std::string &file,const std::string &tag)
+    {
+        database::ImportTask::get().add([file,tag]()
+                                        {
+        std::cout << "Starting to process sequence:" << file << std::endl;
+        OpenXLSX::XLDocument doc;
+        doc.open(file);
+        OpenXLSX::XLWorksheet wks = doc.workbook().worksheet("Sheet1");
+        unsigned long i = 1;
+
+        std::map<std::string, database::Node> nodes;
+        std::vector<database::Link> links;
+
+        
+        for (auto &row : wks.rows())
+        {
+            if (i < 2)
+            {
+                ++i;
+            }
+            else
+            {
+                std::vector<OpenXLSX::XLCellValue> row_vector(row.values());
+
+                if(!row_vector.empty()){
+
+                    std::string source_node_code= row_vector[0].get<std::string>();
+                    std::string target_node_code= row_vector[2].get<std::string>();
+                    std::string source_node_name= row_vector[1].get<std::string>();
+                    std::string target_node_name= row_vector[3].get<std::string>();
+                    std::string api= row_vector[4].get<std::string>();
+                    std::string diagram= row_vector[5].get<std::string>();
+                    
+                    if(!source_node_code.empty()){
+                        database::Node a;
+                        a.get()["code"]=source_node_code;
+                        a.get()["description"]=source_node_name;
+                        if(!tag.empty()) a.get()["tag"] = tag;
+                        a.get()["diagram"] = diagram;
+                        nodes[source_node_code] = a;
+                    }
+
+                    if(!target_node_code.empty()){
+                        database::Node b;
+                        b.get()["code"]=target_node_code;
+                        b.get()["description"]=source_node_name;
+                        if(!tag.empty())  b.get()["tag"] = tag;
+                        b.get()["diagram"] = diagram;
+                        nodes[target_node_code] = b;
+                    }
+
+                    if(!target_node_code.empty()&&!source_node_code.empty()){
+                        database::Link l;
+                        l.source_node_code() = source_node_code;
+                        l.target_node_code() = target_node_name;
+                        if(!tag.empty()) l.get()["tag"] = tag;
+                        l.get()["api"]= "api";
+                        l.get()["diagram"] = diagram;
+                        links.push_back(l);
+                    }
+                    
+
+                    
+                }
+
+                ++i;
+                if (i % 100 == 0)
+                        std::cout << "." << std::flush;
+            }
+        }
+
+        doc.close();
+        std::cout << std::endl
+                  << "Links processed:" << links.size() << std::endl;
+        std::cout << "Capabilities  created:" << nodes.size() << std::endl;
+
+        i = 0;
+        for (auto &[name, node] : nodes)
+        {
+            name.size();
+            node.save();
+            ++i;
+            if (i % 100 == 0)
+                std::cout << "." << std::flush;
+        }
+        std::cout << std::endl
+                  << "Nodes  saved" << std::endl;
+
+        i = 0;
+        for (auto &l : links)
+        {
+            l.save();
+            ++i;
+            if (i % 100 == 0)
+                std::cout << "." << std::flush;
+        }
+        std::cout << std::endl
+                  << "Links  saved" << std::endl; 
+        
+        if (std::experimental::filesystem::remove(file))
+            std::cout << "file " << file << " deleted.\n"; });
+    }
+
     void handleRequest(HTTPServerRequest &request,
                        HTTPServerResponse &response)
     {
@@ -374,6 +477,10 @@ public:
         } else if (form.has("tech"))
         {
             import_tech(xlsx_name);
+        } else if (form.has("sequence"))
+        {
+            std::string tag = form.has("tag")?form.get("tag"):"";
+            import_sequence(xlsx_name,tag);
         }
 
         response.setChunkedTransferEncoding(true);
