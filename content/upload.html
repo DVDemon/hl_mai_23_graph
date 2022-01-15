@@ -34,7 +34,7 @@
             var array = new Int8Array(data);
             //alert(array.byteLength);
             var oReq = new XMLHttpRequest();
-            var str = "/import?"+document.querySelector("#import_type").value;
+            var str = "/import?"+document.querySelector("#import_type").value+"&tag="+document.querySelector("#tag").value;
             oReq.open("POST", str, true);
             oReq.onload = function (oEvent) {
                 // Uploaded.
@@ -55,7 +55,9 @@
         <option value="nodes">Nodes and links</option>
         <option value="capabilities">Capabilities</option>
         <option value="tech">Tech stack</option>
+        <option value="sequence">Sequence</option>
       </select>
+    <input type="tag" id="tag" />
 </body>
 
 </html>

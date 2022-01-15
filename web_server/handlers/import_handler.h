@@ -361,6 +361,17 @@ public:
         std::map<std::string, database::Node> nodes;
         std::vector<database::Link> links;
 
+        auto get_value =[](std::vector<OpenXLSX::XLCellValue>&rv,size_t index){
+            try{
+                std::string val = rv[index].get<std::string>();
+                val.erase(val.begin(), std::find_if(val.begin(), val.end(), [](unsigned char ch) {
+                        return !std::isspace(ch);
+                    }));
+                return rv[index].get<std::string>();
+            }catch(...){
+                return std::string();
+            }
+        };
         
         for (auto &row : wks.rows())
         {
@@ -374,15 +385,16 @@ public:
 
                 if(!row_vector.empty()){
 
-                    std::string source_node_code= row_vector[0].get<std::string>();
-                    std::string target_node_code= row_vector[2].get<std::string>();
-                    std::string source_node_name= row_vector[1].get<std::string>();
-                    std::string target_node_name= row_vector[3].get<std::string>();
-                    std::string api= row_vector[4].get<std::string>();
-                    std::string diagram= row_vector[5].get<std::string>();
+                    std::string source_node_code= get_value(row_vector,0);
+                    std::string target_node_code= get_value(row_vector,2);
+                    std::string source_node_name= get_value(row_vector,1);
+                    std::string target_node_name= get_value(row_vector,3);
+                    std::string api= get_value(row_vector,4);
+                    std::string diagram= get_value(row_vector,5);
                     
                     if(!source_node_code.empty()){
                         database::Node a;
+                        a.label()="MODULE";
                         a.get()["code"]=source_node_code;
                         a.get()["description"]=source_node_name;
                         if(!tag.empty()) a.get()["tag"] = tag;
@@ -392,6 +404,7 @@ public:
 
                     if(!target_node_code.empty()){
                         database::Node b;
+                        b.label()="MODULE";
                         b.get()["code"]=target_node_code;
                         b.get()["description"]=source_node_name;
                         if(!tag.empty())  b.get()["tag"] = tag;
@@ -401,10 +414,11 @@ public:
 
                     if(!target_node_code.empty()&&!source_node_code.empty()){
                         database::Link l;
+                        l.label()="sequence_call";
                         l.source_node_code() = source_node_code;
-                        l.target_node_code() = target_node_name;
+                        l.target_node_code() = target_node_code;
                         if(!tag.empty()) l.get()["tag"] = tag;
-                        l.get()["api"]= "api";
+                        l.get()["api"]= api;
                         l.get()["diagram"] = diagram;
                         links.push_back(l);
                     }
@@ -424,10 +438,15 @@ public:
                   << "Links processed:" << links.size() << std::endl;
         std::cout << "Capabilities  created:" << nodes.size() << std::endl;
 
+        //neo4j::rest_request::query_nodes({"CREATE CONSTRAINT ON (n) ASSERT (n.code) IS UNIQUE"});
+        neo4j::rest_request::query_nodes({"CREATE INDEX :MODULE(code"});
         i = 0;
         for (auto &[name, node] : nodes)
         {
             name.size();
+            
+            //Poco::JSON::Stringifier::stringify(node.toJSON(),std::cout);
+            //std::cout << std::endl;
             node.save();
             ++i;
             if (i % 100 == 0)

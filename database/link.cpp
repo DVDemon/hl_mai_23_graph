@@ -63,6 +63,7 @@ namespace database
 
     void Link::save()
     {
+        //MATCH (a:MODULE) WITH a MATCH(b:MODULE) where a.code="PRO.228" and b.code="WFM" CREATE (a)-[:sequence_call]->(b)
         std::string query;
         query = "MATCH (a {";
         query += "code:\"";
