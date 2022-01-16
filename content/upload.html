@@ -34,7 +34,7 @@
             var array = new Int8Array(data);
             //alert(array.byteLength);
             var oReq = new XMLHttpRequest();
-            var str = "/import?"+document.querySelector("#import_type").value+"&tag="+document.querySelector("#tag").value;
+            var str = "/import?tag="+document.querySelector("#tag").value;
             oReq.open("POST", str, true);
             oReq.onload = function (oEvent) {
                 // Uploaded.
@@ -51,12 +51,6 @@
 <body>
     <input type="file" id="file" />
     <button id="read-file" onclick="loadfile()">Read File</button>
-    <select id="import_type" name="import_type">
-        <option value="nodes">Nodes and links</option>
-        <option value="capabilities">Capabilities</option>
-        <option value="tech">Tech stack</option>
-        <option value="sequence">Sequence</option>
-      </select>
     <input type="tag" id="tag" />
 </body>
 
