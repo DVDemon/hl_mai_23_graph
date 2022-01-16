@@ -2,6 +2,22 @@
 #define CONFIG_H
 
 #include <string>
+#include <map>
+
+struct ParserConfig{
+        std::string sheet;
+        std::string link_type_name;
+        std::string node_type_name;
+        std::string source_node_code_index;
+        std::string target_node_code_index;
+        std::string source_node_type_index;
+        std::string target_node_type_index;
+        std::string source_node_name_index;
+        std::string target_node_name_index;
+        std::string link_name_index;
+
+        void from_name(std::string&,std::string&);
+};
 
 class  Config{
     private:
@@ -12,6 +28,8 @@ class  Config{
         std::string _password;
         std::string _database;
 
+        std::map<std::string,ParserConfig> _parser_config;
+
     public:
         static Config& get();
 
@@ -20,6 +38,8 @@ class  Config{
         std::string& login();
         std::string& password();
         std::string& database();
+
+        std::map<std::string,ParserConfig> &parser_config();
 
         const std::string& get_port() const ;
         const std::string& get_host() const ;
