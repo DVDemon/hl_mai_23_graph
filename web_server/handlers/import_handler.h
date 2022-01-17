@@ -120,7 +120,7 @@ public:
                                 std::string source_node_name = cfg.source_node_name_index.empty() ? "" : get_value(row_vector, std::stoi(cfg.source_node_name_index));
                                 std::string target_node_name = cfg.target_node_name_index.empty() ? "" : get_value(row_vector, std::stoi(cfg.target_node_name_index));
                                 std::string link_name = cfg.link_name_index.empty() ? cfg.link_type_name : get_value(row_vector, std::stoi(cfg.link_name_index));
-
+                                std::string link_type = cfg.link_type_name;
                                 database::Node a, b;
                                 database::Link link;
 
@@ -140,8 +140,9 @@ public:
 
                                 link.source_node_code() = source_node_code;
                                 link.target_node_code() = target_node_code;
-                                link.get()["type"] = link_name;
-                                link.label() = link_name;
+                                link.get()["type"] = link_type;
+                                link.get()["name"] = link_name;
+                                link.label() = link_type;
                                 links.push_back(link);
                             }
                         }
