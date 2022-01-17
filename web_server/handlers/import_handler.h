@@ -124,26 +124,32 @@ public:
                                 database::Node a, b;
                                 database::Link link;
 
-                                a.label() = source_node_type;
-                                a.get()["type"] = source_node_type;
-                                a.get()["code"] = source_node_code;
-                                if (!source_node_name.empty())
-                                    a.get()["name"] = source_node_name;
-                                nodes[source_node_code] = a;
+                                if(!source_node_code.empty()){
+                                    a.label() = source_node_type;
+                                    a.get()["type"] = source_node_type;
+                                    a.get()["code"] = source_node_code;
+                                    if (!source_node_name.empty())
+                                        a.get()["name"] = source_node_name;
+                                    nodes[source_node_code] = a;
+                                }
 
-                                b.label() = target_node_type;
-                                b.get()["type"] = target_node_type;
-                                b.get()["code"] = target_node_code;
-                                if (!target_node_name.empty())
-                                    b.get()["name"] = target_node_name;
-                                nodes[target_node_code] = b;
+                                if(!target_node_code.empty()){
+                                    b.label() = target_node_type;
+                                    b.get()["type"] = target_node_type;
+                                    b.get()["code"] = target_node_code;
+                                    if (!target_node_name.empty())
+                                        b.get()["name"] = target_node_name;
+                                    nodes[target_node_code] = b;
+                                }
 
-                                link.source_node_code() = source_node_code;
-                                link.target_node_code() = target_node_code;
-                                link.get()["type"] = link_type;
-                                link.get()["name"] = link_name;
-                                link.label() = link_type;
-                                links.push_back(link);
+                                if((!source_node_code.empty())&&(!target_node_code.empty())){
+                                    link.source_node_code() = source_node_code;
+                                    link.target_node_code() = target_node_code;
+                                    link.get()["type"] = link_type;
+                                    link.get()["name"] = link_name;
+                                    link.label() = link_type;
+                                    links.push_back(link);
+                                }
                             }
                         }
                     }
