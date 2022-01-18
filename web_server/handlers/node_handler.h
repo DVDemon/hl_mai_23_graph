@@ -82,7 +82,6 @@ private:
         }
         else
         {
-
             std::vector<database::Link> result_links;
             std::vector<database::Node> result_nodes;
             database::Link::load_node_links(code, result_links, result_nodes);
@@ -105,6 +104,7 @@ private:
                 file.close();
                 std::experimental::filesystem::remove(name);
             }
+            //*/
             return ;
         }
     }

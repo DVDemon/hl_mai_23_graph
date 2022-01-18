@@ -20,7 +20,7 @@ namespace database
         Link();
 
         static void load_node_links(const std::string& code,std::vector<Link> &result_links,std::vector<Node>& result_nodes);
-
+        
         void save();
         Poco::JSON::Object::Ptr toJSON() const;
 

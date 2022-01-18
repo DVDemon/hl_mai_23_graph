@@ -13,18 +13,22 @@
 
 namespace neo4j
 {
-    std::string rest_request::connection = "http://127.0.0.1:7474/db/neo4j/tx/commit";
+    std::string rest_request::connection = "http://127.0.0.1:7474/db/neo4j";
     std::string rest_request::login="neo4j";
     std::string rest_request::password="stud";
     void rest_request::config(const std::string &host,const std::string& port,const std::string& database,const std::string& login,const std::string& password){
-        connection = "http://"+host+":"+port+"/db/"+database+"/tx/commit";
+        connection = "http://"+host+":"+port+"/db/"+database;
         rest_request::login = login;
         rest_request::password = password;
         std::cout << "neo4j connection string:" << connection << std::endl;
     }
 
-    const std::string & rest_request::get_connection(){
+    const std::string & rest_request::get_base_connection(){
         return connection;
+    }
+
+    const std::string  rest_request::get_connection(){
+        return connection+"/tx/commit";
     }
     
     const std::string & rest_request::get_login(){
@@ -99,6 +103,54 @@ namespace neo4j
 
         return result;
     }
+
+    Poco::Dynamic::Var  rest_request::get_object(const std::string &url)
+    {
+        std::cout << url << std::endl;
+        Poco::URI uri(url);
+
+        std::string path(uri.getPathAndQuery());
+        if (path.empty())
+            path = "/";
+
+        Poco::Net::HTTPClientSession session(uri.getHost(), uri.getPort());
+        Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, path, Poco::Net::HTTPMessage::HTTP_1_1);
+
+        request.setContentType("application/json");
+        request.add("Accept", "application/json;charset=UTF-8");
+
+        // authorization
+        std::ostringstream ss;
+        Poco::Base64Encoder encoder(ss);
+        encoder << get_login() << ":" << get_password();
+        encoder.close();
+        request.setCredentials("Basic", ss.str());
+
+        request.setContentLength(0);
+        session.sendRequest(request) << std::flush;
+
+        Poco::Net::HTTPResponse response;
+        std::istream &rs = session.receiveResponse(response);
+
+        // read response
+        std::string str;
+        std::copy(std::istream_iterator<char>(rs), std::istream_iterator<char>(),
+                  std::back_inserter(str));
+
+        std::cout << str << std::endl;
+
+        Poco::Dynamic::Var result;
+        if ((response.getStatus() == 200) || (response.getStatus() == 201))
+        {
+            Poco::JSON::Parser parser;
+            result= parser.parse(str);
+        }
+        else
+            throw std::logic_error("connection error");
+
+        return result;
+    }
+
 
     std::vector<std::string> rest_request::query_values(const std::vector<std::string> &params)
     {

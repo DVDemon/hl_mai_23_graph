@@ -86,13 +86,9 @@ namespace database
                         for( Link  l: links){
                             if(!l.source_node_code().empty() && !l.target_node_code().empty())
 
-                            file    << "Rel(" << l.source_node_code() <<"," << l.target_node_code() <<",\"Uses\")" << std::endl;
+                            file    << "Rel(" << l.source_node_code() <<"," << l.target_node_code() <<",\"" << l.get()["name"]<<"\")" << std::endl;
                         }
                         
-                        file    << ""  << std::endl;
-                        file    << ""  << std::endl;
-                        file    << ""  << std::endl;
-                        file    << ""  << std::endl;
                         file    << "@enduml";
                         file.close();
 

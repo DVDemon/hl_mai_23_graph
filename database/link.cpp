@@ -23,6 +23,7 @@ namespace database
         return root;
     }
 
+
     void  Link::load_node_links(const std::string &code,std::vector<Link> &result_links,std::vector<Node>& result_nodes)
     {
         try
