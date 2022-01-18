@@ -106,7 +106,7 @@ namespace neo4j
 
     Poco::Dynamic::Var  rest_request::get_object(const std::string &url)
     {
-        std::cout << url << std::endl;
+        
         Poco::URI uri(url);
 
         std::string path(uri.getPathAndQuery());
@@ -137,7 +137,6 @@ namespace neo4j
         std::copy(std::istream_iterator<char>(rs), std::istream_iterator<char>(),
                   std::back_inserter(str));
 
-        std::cout << str << std::endl;
 
         Poco::Dynamic::Var result;
         if ((response.getStatus() == 200) || (response.getStatus() == 201))
