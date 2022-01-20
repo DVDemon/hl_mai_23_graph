@@ -49,7 +49,12 @@ namespace database
 
         _futures[result]=std::async(std::launch::async,
                     [nodes,links,result](){
-
+                        
+                        auto escape_string = [](std::string &str){
+                            std::string res;
+                            std::transform(std::begin(str),std::end(str),std::back_inserter(res),[](char c){ return c==','?'_':c;});
+                            return res;
+                        };
                         // create directory
                         if(!std::experimental::filesystem::exists("puml"))
                         std::experimental::filesystem::create_directory("puml");
@@ -73,6 +78,7 @@ namespace database
                             std::string code = "code_"+std::to_string(++i);
                             if(n.get().find("code")!=std::end(n.get())) code = n.get()["code"];
 
+                            code = escape_string(code);
                             std::string name = code;
                             if(n.get().find("name")!=std::end(n.get())) name = n.get()["name"];
 
@@ -82,12 +88,38 @@ namespace database
                             file    << type << "(" << code <<",\"" << name <<"\",\"" << description<< "\")" << std::endl;
                         }
 
+                        std::map<std::string,std::vector<Link>> unique_links;
 
                         for( Link  l: links){
+                            std::string key;
+                            key = l.source_node_code()+l.target_node_code();
+                            if(unique_links.find(key)==std::end(unique_links))
+                                    unique_links[key] = {l};
+                                else
+                                    unique_links[key].push_back(l);
+                        }
+
+
+                        for(auto &[key,arr] : unique_links){
+                            std::string source_node_code;
+                            std::string target_node_code;
+                            std::string name;
+
+
+                            for(Link& l: arr){
+                                source_node_code = l.source_node_code();
+                                target_node_code = l.target_node_code();
+                                name += l.get()["name"]+"; ";
+                            }
+
+                            file    << "Rel(" << escape_string(source_node_code) <<"," << escape_string(target_node_code) <<",\"" << name <<"\")" << std::endl;
+                        }
+
+                        /*for( Link  l: links){
                             if(!l.source_node_code().empty() && !l.target_node_code().empty())
 
                             file    << "Rel(" << l.source_node_code() <<"," << l.target_node_code() <<",\"" << l.get()["name"]<<"\")" << std::endl;
-                        }
+                        }*/
                         
                         file    << "@enduml";
                         file.close();
