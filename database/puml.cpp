@@ -61,8 +61,8 @@ namespace database
 
                         file    << "@startuml" << std::endl;
                         file    << "!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml"  << std::endl;
-                        file    << "LAYOUT_WITH_LEGEND()"  << std::endl;
-                        file    << "title Solution Library"  << std::endl;
+                        //file    << "LAYOUT_WITH_LEGEND()"  << std::endl;
+                        //file    << "title Solution Library"  << std::endl;
                         size_t i=0;
                         for( Node  n: nodes){
 

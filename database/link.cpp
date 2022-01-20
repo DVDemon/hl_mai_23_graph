@@ -1,5 +1,6 @@
 #include "link.h"
 #include "../neo4j/rest_client.h"
+#include <set>
 
 namespace database
 {
@@ -23,37 +24,34 @@ namespace database
         return root;
     }
 
-
-    void  Link::load_node_links(const std::string &code,std::vector<Link> &result_links,std::vector<Node>& result_nodes)
+    void Link::load_node_links(const std::string &code, std::vector<Link> &result_links, std::vector<Node> &result_nodes)
     {
         try
         {
+            auto res = neo4j::rest_request::query_links(code);
 
-            std::string query;
-            query = "MATCH (a {";
-            query += "code:\"";
-            query += code;
-            query += "\"})-[p*1]->(m) RETURN m";
-
-            auto res = neo4j::rest_request::query_nodes({query});
+            std::set<std::string> node_codes;
             for (auto &r : res)
             {
-                Node a;
-                std::string code_to;
-                for (auto p : r) {
-                    if(p.first=="code") code_to=p.second;
-                    a.get()[p.first] = p.second;
+                Link l;
+                for (auto p : r)
+                {
+                    if (p.first == "source_node_code") l.source_node_code() = p.second;
+                    else
+                    if (p.first == "target_node_code") l.target_node_code() = p.second;
+                    else l.get()[p.first] = p.second;
                 }
-                result_nodes.push_back(a);
-                if(!code_to.empty()){
-                    Link l;
-                    l.source_node_code() = code;
-                    l.target_node_code() = code_to;
+                if(!l.target_node_code().empty()&&!l.source_node_code().empty()) {
+                    node_codes.insert(l.target_node_code());
+                    node_codes.insert(l.source_node_code());
                     result_links.push_back(l);
                 }
-
             }
-            return ;
+
+            for(auto node_c : node_codes)
+                result_nodes.push_back(database::Node::load(node_c));
+            
+            return;
         }
         catch (std::exception &ex)
         {

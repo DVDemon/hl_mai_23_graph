@@ -23,7 +23,7 @@ void ParserConfig::from_name(std::string& name,std::string& value) {
 
 Config::Config()
 {
-    const std::string filename {"parser_config.js"};
+    const std::string filename {"parser_config.json"};
     if(std::experimental::filesystem::exists(filename)){
         std::ifstream file(filename);
         if(file.is_open()){

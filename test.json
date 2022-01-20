@@ -1,0 +1,527 @@
+{
+    "results": [
+        {
+            "columns": [
+                "n.code",
+                "m.code",
+                "p"
+            ],
+            
+            "data": [
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.122",
+                        {
+                            "name": "CreateInform(Registry)",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.228",
+                        {
+                            "name": "CreateSiebelOrderfromMangoProductOrder()",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.228",
+                        {
+                            "name": "PortalICustomerManagementService.CreateOrders",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.228",
+                        {
+                            "name": "CreateOrders(CreateOrders,CreateOrdersResponse*)",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.228",
+                        {
+                            "name": "CustomerInquiry(string,string,Body)",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.228",
+                        {
+                            "name": "GET/actualtime/api/1.0/order/{serviceId}/actualTimeSlots",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.006",
+                        {
+                            "name": "ДУУ,сменаТП,переносПОмеждуЛС,закрытиеПО",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.069",
+                        {
+                            "name": "IAccountOperations.ChangeAccount",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.069",
+                        {
+                            "name": "IAgreementOperations.ChangeMarketingCategory",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.069",
+                        {
+                            "name": "ICustomerInformation.GetAgreementsByAccounts",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.069",
+                        {
+                            "name": "ICustomerInformation.GetAccountsByMsisdns()",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.006.042",
+                        {
+                            "name": "IResourceOperations.GetFreePhonesAndReserve(PhonesReserveRequestrequest)",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.006.042",
+                        {
+                            "name": "ICustomerInformation.GetSimCardByIccId(stringiccId)",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.006.042",
+                        {
+                            "name": "IDealersSupporter.FindComplect(FindComplectRequestRequest)",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.069",
+                        {
+                            "name": "GetResourceHistoryListByAccountNumbers(GetResourceHistoryListByAccountNumberRequestrequest)",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.069",
+                        {
+                            "name": "GetExtendedBalanceByAccountNumber(stringaccountNumber,stringmsisdn)",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.006.003",
+                        {
+                            "name": "findAddressInSources(findAddressInSources,findAddressInSourcesResponse*,ErrorResponse*)",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.002",
+                        {
+                            "name": "ValidateSubscriptions()",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.002",
+                        {
+                            "name": "PutFreezeDateFrom",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.002",
+                        {
+                            "name": "DoPortation",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PRO.002",
+                        {
+                            "name": "createOrder(ProductOrder)",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "SRV.125",
+                        {
+                            "name": "getAddress(SVapiPortType_getAddress_InputMessage,SVapiPortType_getAddress_OutputMessage*)",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PLF.010",
+                        {
+                            "name": "/composition/reducedOrderWithRelatedProducts/{0}?orderItem.id={1},{2}&withTree={3}",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PLF.010",
+                        {
+                            "name": "PATCH/orderManagement/productOrder/{productOrderId}/orderItem/{orderItemId}/extraEntity",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PLF.010",
+                        {
+                            "name": "PUT/orderManagement/productOrder/{productOrderId}/externalId/{externalIdSystem}-{externalIdType}",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PLF.010",
+                        {
+                            "name": "POST/orderManagement/messageSession/sendMessage",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PLF.010",
+                        {
+                            "name": "PUT/orderManagement/productOrder/{productOrderId}/orderItem/{orderItemId}/expectedCompletionDate",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PLF.010",
+                        {
+                            "name": "POST/orderManagement/productOrder/{productOrderId}/orderItem/mapServerGroup",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PLF.010",
+                        {
+                            "name": "PUT/orderManagement/productOrder/{productOrderId}/orderItem/{orderItemId}/resource/one",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PLF.010",
+                        {
+                            "name": "POST/processManagement/messageSession",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PLF.010",
+                        {
+                            "name": "PATCHhttp://server:port/orderManagement/productOrder/{productOrderId}/orderItem/{orderItemId}",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                },
+                {
+                    "row": [
+                        "PRO.661",
+                        "PLF.011",
+                        {
+                            "name": "GEThttp://server:port/ProductOfferCatalogue/api/catalogueExplorer/v1.2/SalesChannel/{1}/Catalog/{2}/ProductOffering?place.Id={3}&id={4},{5},{6}&category.Id={7},{8}&lifecycleStatus={9}",
+                            "type": "call"
+                        }
+                    ],
+                    "meta": [
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                }
+            ]
+        }
+    ],
+    "errors": []
+}

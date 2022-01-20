@@ -85,9 +85,8 @@ namespace neo4j
         std::istream &rs = session.receiveResponse(response);
 
         // read response
-        std::string str;
-        std::copy(std::istream_iterator<char>(rs), std::istream_iterator<char>(),
-                  std::back_inserter(str));
+        std::string str(std::istreambuf_iterator<char>(rs),{});
+
 
         //std::cout << str << std::endl;
 
@@ -133,9 +132,7 @@ namespace neo4j
         std::istream &rs = session.receiveResponse(response);
 
         // read response
-        std::string str;
-        std::copy(std::istream_iterator<char>(rs), std::istream_iterator<char>(),
-                  std::back_inserter(str));
+        std::string str(std::istreambuf_iterator<char>(rs),{});
 
 
         Poco::Dynamic::Var result;
@@ -223,6 +220,45 @@ namespace neo4j
                         if(name=="id")
                         element.push_back(result_pair_t(name,ptr_meta->getValue<std::string>(name)));
                     }
+                    result.push_back(element);
+                }
+            }
+        }
+        catch (std::exception *ex)
+        {
+            std::cerr << "neo4j exception:" << ex->what() << std::endl;
+        }
+
+        return result;
+    }
+
+    std::vector<result_pair_collection_t> rest_request::query_links(const std::string&  source_node_code)
+    {
+        std::vector<result_pair_collection_t> result;
+        std::string query;
+            query = "MATCH (n {";
+            query += "code:\"";
+            query += source_node_code;
+            query += "\"})-[p]->(m) RETURN n.code,m.code,p{.*}";
+
+        try
+        {
+            Poco::JSON::Object::Ptr jobject = post_object({query});
+            Poco::JSON::Array::Ptr datasets = jobject->getArray("results");
+            if (datasets->size() == 1)
+            {
+                Poco::JSON::Array::Ptr records = datasets->getObject(0)->getArray("data");
+
+                for(size_t j=0;j<records->size();++j){
+                    result_pair_collection_t element;
+                    element.push_back(result_pair_t("source_node_code",records->getObject(j)->getArray("row")->getElement<std::string>(0)));
+                    element.push_back(result_pair_t("target_node_code",records->getObject(j)->getArray("row")->getElement<std::string>(1)));
+                    Poco::JSON::Parser parser;
+                    Poco::Dynamic::Var props = parser.parse(records->getObject(j)->getArray("row")->getElement<std::string>(2));
+                    Poco::JSON::Object::Ptr prop_ptr = props.extract<Poco::JSON::Object::Ptr>();
+                    for(auto k: prop_ptr->getNames())
+                        element.push_back(result_pair_t(k,prop_ptr->getValue<std::string>(k)));
+                     
                     result.push_back(element);
                 }
             }
