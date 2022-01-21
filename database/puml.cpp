@@ -65,9 +65,10 @@ namespace database
                         file.open(file_name, std::ios::binary);
 
                         file    << "@startuml" << std::endl;
-                        file    << "!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml"  << std::endl;
+                        //file    << "!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml"  << std::endl;
                         //file    << "LAYOUT_WITH_LEGEND()"  << std::endl;
                         //file    << "title Solution Library"  << std::endl;
+                        file << "left to right direction" << std::endl;
                         size_t i=0;
                         for( Node  n: nodes){
 
@@ -85,7 +86,8 @@ namespace database
                             std::string description;
                             for(auto & [k1,k2]: n.get()) description += k1 +":"+k2+" ";
 
-                            file    << type << "(" << code <<",\"" << name <<"\",\"" << description<< "\")" << std::endl;
+                            file << "component \"" << name << "\" as " << escape_string(code) << std::endl;
+                            // file    << type << "(" << code <<",\"" << name <<"\",\"" << description<< "\")" << std::endl;
                         }
 
                         std::map<std::string,std::vector<Link>> unique_links;
@@ -111,8 +113,8 @@ namespace database
                                 target_node_code = l.target_node_code();
                                 name += l.get()["name"]+"; ";
                             }
-
-                            file    << "Rel(" << escape_string(source_node_code) <<"," << escape_string(target_node_code) <<",\"" << name <<"\")" << std::endl;
+                            file << escape_string(source_node_code) << " --> " << escape_string(target_node_code) << " : " << name << std::endl;
+                            //file    << "Rel(" << escape_string(source_node_code) <<"," << escape_string(target_node_code) <<",\"" << name <<"\")" << std::endl;
                         }
 
                         /*for( Link  l: links){
