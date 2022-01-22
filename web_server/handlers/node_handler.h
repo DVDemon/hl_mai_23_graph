@@ -71,6 +71,19 @@ private:
         Poco::JSON::Stringifier::stringify(arr, ostr);
     }
 
+    void process_links(std::ostream &ostr, const std::string &code, database::Link_type link_type)
+    {
+        std::vector<database::Link> result_links;
+        std::vector<database::Node> result_nodes;
+        database::Link::load_node_links(code, result_links, result_nodes,link_type);
+        Poco::JSON::Array arr;
+        for(auto n: result_nodes){
+            arr.add(n.toJSON());
+        }
+
+        Poco::JSON::Stringifier::stringify(arr, ostr);
+    }
+
     void process_code(std::ostream &ostr, const std::string &code, bool image, database::Link_type link_type, std::function<void(const std::string &)> content_type)
     {
         auto result = database::Node::load(code);
@@ -115,6 +128,7 @@ private:
         ostr << "[";
         for (auto s : results)
         {
+   
             ostr << "{\"type\":\"" << s << "\"},";
         }
         ostr << "]";
@@ -130,6 +144,7 @@ public:
     {
         HTMLForm form(request, request.stream());
         response.setChunkedTransferEncoding(true);
+
         //
         std::ostream &ostr = response.send();
 
@@ -137,18 +152,37 @@ public:
         {
             if (form.has("search"))
             {
+                response.setContentType("application/json; charset=utf-8");
                 process_search(ostr, form.get("search").c_str());
-                response.setContentType("application/json");
+                
             }
             else if (form.has("type"))
             {
+                response.setContentType("application/json; charset=utf-8");
                 process_type(ostr, form.get("type").c_str());
-                response.setContentType("application/json");
+                
             }
             else if (form.has("types"))
             {
-                process_types(ostr);
-                response.setContentType("application/json");
+                response.setContentType("application/json; charset=utf-8");
+
+                process_types(ostr);              
+            }
+            else if (form.has("links"))
+            {
+                database::Link_type link_type = database::Link_type::both;
+                if (form.has("link_type"))
+                {
+                    std::string lt_str = form.get("link_type");
+                    if (lt_str == "both")
+                        link_type = database::Link_type::both;
+                    else if (lt_str == "in")
+                        link_type = database::Link_type::in;
+                    else if (lt_str == "out")
+                        link_type = database::Link_type::out;
+                }
+
+                process_links(ostr,form.get("links").c_str(), link_type);
             }
             else if (form.has("code"))
             {
