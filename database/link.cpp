@@ -24,33 +24,63 @@ namespace database
         return root;
     }
 
-    void Link::load_node_links(const std::string &code, std::vector<Link> &result_links, std::vector<Node> &result_nodes)
+    void Link::load_node_links(const std::string &code, std::vector<Link> &result_links, std::vector<Node> &result_nodes, Link_type link_type)
     {
         try
         {
-            auto res = neo4j::rest_request::query_links(code);
 
-            std::set<std::string> node_codes;
-            for (auto &r : res)
+            auto process = [&](std::vector<result_pair_collection_t> &res)
             {
-                Link l;
-                for (auto p : r)
+                std::set<std::string> node_codes;
+                for (auto &r : res)
                 {
-                    if (p.first == "source_node_code") l.source_node_code() = p.second;
-                    else
-                    if (p.first == "target_node_code") l.target_node_code() = p.second;
-                    else l.get()[p.first] = p.second;
+                    Link l;
+                    for (auto p : r)
+                    {
+                        if (p.first == "source_node_code")
+                            l.source_node_code() = p.second;
+                        else if (p.first == "target_node_code")
+                            l.target_node_code() = p.second;
+                        else
+                            l.get()[p.first] = p.second;
+                    }
+                    if (!l.target_node_code().empty() && !l.source_node_code().empty())
+                    {
+                        node_codes.insert(l.target_node_code());
+                        node_codes.insert(l.source_node_code());
+                        result_links.push_back(l);
+                    }
                 }
-                if(!l.target_node_code().empty()&&!l.source_node_code().empty()) {
-                    node_codes.insert(l.target_node_code());
-                    node_codes.insert(l.source_node_code());
-                    result_links.push_back(l);
-                }
+
+                for (auto node_c : node_codes)
+                    result_nodes.push_back(database::Node::load(node_c));
+            };
+
+            switch (link_type)
+            {
+            case Link_type::in:
+            {
+                auto res = neo4j::rest_request::query_links(code, false);
+                process(res);
+                break;
+            }
+            case Link_type::out:
+            {
+                auto res = neo4j::rest_request::query_links(code, true);
+                process(res);
+                break;
+            }
+            default:
+            {
+                auto res = neo4j::rest_request::query_links(code, false);
+                process(res);
+                res = neo4j::rest_request::query_links(code, true);
+                process(res);
+                break;
+            }
+                break;
             }
 
-            for(auto node_c : node_codes)
-                result_nodes.push_back(database::Node::load(node_c));
-            
             return;
         }
         catch (std::exception &ex)

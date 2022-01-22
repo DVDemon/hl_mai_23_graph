@@ -8,6 +8,12 @@
 
 namespace database
 {
+    enum class Link_type
+    {
+        in,
+        out,
+        both
+    };
     class Link
     {
     private:
@@ -19,8 +25,8 @@ namespace database
     public:
         Link();
 
-        static void load_node_links(const std::string& code,std::vector<Link> &result_links,std::vector<Node>& result_nodes);
-        
+        static void load_node_links(const std::string &code, std::vector<Link> &result_links, std::vector<Node> &result_nodes,Link_type link_type);
+
         void save();
         Poco::JSON::Object::Ptr toJSON() const;
 

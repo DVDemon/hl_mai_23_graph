@@ -35,7 +35,7 @@ namespace neo4j{
         
 
         static std::vector<result_pair_collection_t> query_nodes(const std::vector<std::string>& params);
-        static std::vector<result_pair_collection_t> query_links(const std::string&  source_node_code);
+        static std::vector<result_pair_collection_t> query_links(const std::string&  source_node_code,bool out_links);
         static std::vector<std::string> query_values(const std::vector<std::string>& params);
 
     };

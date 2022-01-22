@@ -232,15 +232,19 @@ namespace neo4j
         return result;
     }
 
-    std::vector<result_pair_collection_t> rest_request::query_links(const std::string&  source_node_code)
+    std::vector<result_pair_collection_t> rest_request::query_links(const std::string&  source_node_code,bool out_links)
     {
         std::vector<result_pair_collection_t> result;
         std::string query;
-            query = "MATCH (n {";
-            query += "code:\"";
-            query += source_node_code;
-            query += "\"})-[p]->(m) RETURN n.code,m.code,p{.*}";
+        
+        query = "MATCH (n) WHERE n.code=\"";
+        query += source_node_code;
+        if(out_links)
+            query +="\" OPTIONAL MATCH (n)-[p]->(m) RETURN n.code,m.code,p{.*}";
+        else
+            query +="\" OPTIONAL MATCH (n)<-[p]-(m) RETURN m.code,n.code,p{.*}";
 
+        
         try
         {
             Poco::JSON::Object::Ptr jobject = post_object({query});
@@ -263,9 +267,9 @@ namespace neo4j
                 }
             }
         }
-        catch (std::exception *ex)
+        catch (...)
         {
-            std::cerr << "neo4j exception:" << ex->what() << std::endl;
+            std::cerr << "neo4j exception" << std::endl;
         }
 
         return result;

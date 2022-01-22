@@ -71,29 +71,28 @@ private:
         Poco::JSON::Stringifier::stringify(arr, ostr);
     }
 
-    void process_code(std::ostream &ostr, const std::string &code, bool image,std::function<void(const std::string&)> content_type)
+    void process_code(std::ostream &ostr, const std::string &code, bool image, database::Link_type link_type, std::function<void(const std::string &)> content_type)
     {
         auto result = database::Node::load(code);
         if (!image)
         {
-            content_type( "text/html");
+            content_type("text/html");
             Poco::JSON::Stringifier::stringify(result.toJSON(), ostr);
-
         }
         else
         {
             std::vector<database::Link> result_links;
             std::vector<database::Node> result_nodes;
-            database::Link::load_node_links(code, result_links, result_nodes);
+            database::Link::load_node_links(code, result_links, result_nodes,link_type);
             result_nodes.push_back(result);
             std::string key = database::Puml::get().generate_puml(result_nodes, result_links);
             std::cout << "Generate puml:" << key << std::endl;
             database::Puml::get().wait_for(key);
             std::cout << "Generated:" << key << std::endl;
-            std::string name = "puml/"+key+".png";
+            std::string name = "puml/" + key + ".png";
             if (std::experimental::filesystem::exists(name))
             {
-                content_type( "image/png");
+                content_type("image/png");
                 std::ifstream file;
                 file.open(name, std::ios::binary);
 
@@ -105,7 +104,7 @@ private:
                 std::experimental::filesystem::remove(name);
             }
             //*/
-            return ;
+            return;
         }
     }
 
@@ -151,8 +150,23 @@ public:
                 process_types(ostr);
                 response.setContentType("application/json");
             }
-            else if (form.has("code")){
-                process_code(ostr, form.get("code").c_str(), form.has("image"),[&response](const std::string& str){response.setContentType(str);});
+            else if (form.has("code"))
+            {
+                database::Link_type link_type = database::Link_type::both;
+                if (form.has("link_type"))
+                {
+                    std::string lt_str = form.get("link_type");
+                    if (lt_str == "both")
+                        link_type = database::Link_type::both;
+                    else if (lt_str == "in")
+                        link_type = database::Link_type::in;
+                    else if (lt_str == "out")
+                        link_type = database::Link_type::out;
+                }
+
+                process_code(ostr, form.get("code").c_str(), form.has("image"), link_type,
+                             [&response](const std::string &str)
+                             { response.setContentType(str); });
             }
             response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_OK);
         }
