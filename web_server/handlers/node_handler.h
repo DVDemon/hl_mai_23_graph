@@ -54,9 +54,9 @@ class NodeHandler : public HTTPRequestHandler
 private:
     void process_search(std::ostream &ostr, const std::string &pattern)
     {
-        auto results = database::Node::search(pattern);
+        const auto results = database::Node::search(pattern);
         Poco::JSON::Array arr;
-        for (auto s : results)
+        for (const auto & s : results)
             arr.add(s.toJSON());
         Poco::JSON::Stringifier::stringify(arr, ostr);
         // std::vector<database::Link> links;
@@ -64,9 +64,9 @@ private:
     }
     void process_type(std::ostream &ostr, const std::string &pattern)
     {
-        auto results = database::Node::by_label(pattern);
+        const auto results = database::Node::by_label(pattern);
         Poco::JSON::Array arr;
-        for (auto s : results)
+        for (const auto & s : results)
             arr.add(s.toJSON());
         Poco::JSON::Stringifier::stringify(arr, ostr);
     }
@@ -86,7 +86,7 @@ private:
 
     void process_code(std::ostream &ostr, const std::string &code, bool image, database::Link_type link_type, std::function<void(const std::string &)> content_type)
     {
-        auto result = database::Node::load(code);
+        const auto result = database::Node::load(code);
         if (!image)
         {
             content_type("text/html");
@@ -102,7 +102,7 @@ private:
             std::cout << "Generate puml:" << key << std::endl;
             database::Puml::get().wait_for(key);
             std::cout << "Generated:" << key << std::endl;
-            std::string name = "puml/" + key + ".png";
+            const std::string name = "puml/" + key + ".png";
             if (std::experimental::filesystem::exists(name))
             {
                 content_type("image/png");
@@ -123,10 +123,10 @@ private:
 
     void process_types(std::ostream &ostr)
     {
-        auto results = database::Node::labels();
+        const auto results = database::Node::labels();
         Poco::JSON::Array arr;
         ostr << "[";
-        for (auto s : results)
+        for (const auto & s : results)
         {
    
             ostr << "{\"type\":\"" << s << "\"},";

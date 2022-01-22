@@ -15,7 +15,7 @@ namespace database
         root->set("label", _label);
 
         Poco::JSON::Object::Ptr props = new Poco::JSON::Object();
-        for (auto &[n, m] : _map)
+        for (const auto &[n, m] : _map)
         {
             props->set(n, m);
         }
@@ -29,20 +29,20 @@ namespace database
         try
         {
 
-            auto process = [&](std::vector<result_pair_collection_t> &res)
+            const auto process = [&](std::vector<result_pair_collection_t> &res)
             {
                 std::set<std::string> node_codes;
-                for (auto &r : res)
+                for (const auto &r : res)
                 {
                     Link l;
-                    for (auto p : r)
+                    for (const auto &[k,v] : r)
                     {
-                        if (p.first == "source_node_code")
-                            l.source_node_code() = p.second;
-                        else if (p.first == "target_node_code")
-                            l.target_node_code() = p.second;
+                        if (k == "source_node_code")
+                            l.source_node_code() = v;
+                        else if (k == "target_node_code")
+                            l.target_node_code() = v;
                         else
-                            l.get()[p.first] = p.second;
+                            l.get()[k] = v;
                     }
                     if (!l.target_node_code().empty() && !l.source_node_code().empty())
                     {
@@ -52,7 +52,7 @@ namespace database
                     }
                 }
 
-                for (auto node_c : node_codes)
+                for (const auto &node_c : node_codes)
                     result_nodes.push_back(database::Node::load(node_c));
             };
 
@@ -90,7 +90,7 @@ namespace database
         }
     }
 
-    void Link::save()
+    void Link::save() const
     {
         //MATCH (a:MODULE) WITH a MATCH(b:MODULE) where a.code="PRO.228" and b.code="WFM" CREATE (a)-[:sequence_call]->(b)
         std::string query;
@@ -113,6 +113,21 @@ namespace database
         query += "}]->(b)";
 
         neo4j::rest_request::query_nodes({query});
+    }
+
+    const std::string &Link::source_node_code() const
+    {
+        return _source_node_code;
+    }
+
+    const std::string &Link::target_node_code() const 
+    {
+        return _target_node_code;
+    }
+
+    const std::map<std::string, std::string> &Link::get() const
+    {
+        return _map;
     }
 
     std::string &Link::source_node_code()

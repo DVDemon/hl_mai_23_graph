@@ -63,8 +63,8 @@ public:
 
     void import(const std::string &file)
     {
-        auto action =
-            [file]()
+        const auto action =
+            [&file]()
         {
             std::cout << "Importing:" << file << std::endl;
             OpenXLSX::XLDocument doc;
@@ -101,7 +101,7 @@ public:
                     std::cout << "Processing:" << cfg.sheet << std::endl;
 
                     unsigned long i = 1;
-                    for (auto &row : wks.rows())
+                    for (const auto &row : wks.rows())
                     {
                         if (i < 2)
                         {
@@ -163,7 +163,7 @@ public:
                 neo4j::rest_request::query_nodes({"CREATE INDEX FOR (m) ON (m.code)"});
 
                 int i = 0;
-                for (auto &[name, node] : nodes)
+                for (const auto &[name, node] : nodes)
                 {
                     name.size();
                     node.save();
@@ -173,7 +173,7 @@ public:
                 }
 
                 i = 0;
-                for (auto &l : links)
+                for (const auto &l : links)
                 {
                     l.save();
                     ++i;
