@@ -16,7 +16,7 @@ namespace database
     public:
         Node();
         
-        void save();
+        void save() const;
 
         Poco::JSON::Object::Ptr toJSON() const;
 

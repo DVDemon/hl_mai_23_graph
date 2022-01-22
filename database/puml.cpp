@@ -42,17 +42,17 @@ namespace database
         if(_futures.find(key)!=std::end(_futures)) _futures[key].get();
     }
 
-    std::string Puml::generate_puml(std::vector<Node> &nodes,
-                                    std::vector<Link> &links)
+    std::string Puml::generate_puml(const std::vector<Node> &nodes,
+                                    const std::vector<Link> &links)
     {
-        std::string result= Poco::UUIDGenerator().createRandom().toString();
+        const std::string result= Poco::UUIDGenerator().createRandom().toString();
 
         _futures[result]=std::async(std::launch::async,
                     [nodes,links,result](){
                         
-                        auto escape_string = [](std::string &str){
+                        const auto escape_string = [](const std::string &str){
                             std::string res;
-                            std::transform(std::begin(str),std::end(str),std::back_inserter(res),[](char c){ return c==','?'_':c;});
+                            std::transform(std::begin(str),std::end(str),std::back_inserter(res),[](const char c){ return c==','?'_':c;});
                             return res;
                         };
                         // create directory
@@ -70,48 +70,47 @@ namespace database
                         //file    << "title Solution Library"  << std::endl;
                         file << "left to right direction" << std::endl;
                         size_t i=0;
-                        for( Node  n: nodes){
+                        for(const Node &n: nodes){
 
                             std::string type = "Container";
-                            if(n.get().find("type")!=std::end(n.get())) {
-                                if(n.get()["type"]=="Подразделение") type="Person";
+                            auto it = n.get().find("type");
+                            if(it != std::end(n.get()) && it->second == "Подразделение") {
+                                type="Person";
                             }
-                            std::string code = "code_"+std::to_string(++i);
-                            if(n.get().find("code")!=std::end(n.get())) code = n.get()["code"];
+                            it = n.get().find("code");                            
+                            const std::string code = (it != std::end(n.get())) ? escape_string(it->second) : "code_" + std::to_string(++i);
 
-                            code = escape_string(code);
-                            std::string name = code;
-                            if(n.get().find("name")!=std::end(n.get())) name = n.get()["name"];
+                            it = n.get().find("name");
+                            const std::string name = (it != std::end(n.get())) ? it->second : code;
 
                             std::string description;
-                            for(auto & [k1,k2]: n.get()) description += k1 +":"+k2+" ";
+                            for(const auto & [k1,k2]: n.get()) description += k1 +":"+k2+" ";
 
-                            file << "component \"" << name << "\" as " << escape_string(code) << std::endl;
+                            file << "component \"" << name << "\" as " << code << std::endl;
                             // file    << type << "(" << code <<",\"" << name <<"\",\"" << description<< "\")" << std::endl;
                         }
 
                         std::map<std::string,std::vector<Link>> unique_links;
 
-                        for( Link  l: links){
+                        for (const Link &l : links) {
                             std::string key;
-                            key = l.source_node_code()+l.target_node_code();
-                            if(unique_links.find(key)==std::end(unique_links))
-                                    unique_links[key] = {l};
-                                else
-                                    unique_links[key].push_back(l);
+                            key = l.source_node_code() + l.target_node_code();
+                            if (unique_links.find(key) ==
+                                std::end(unique_links))
+                                unique_links[key] = {l};
+                            else
+                                unique_links[key].push_back(l);
                         }
 
-
-                        for(auto &[key,arr] : unique_links){
+                        for(const auto &[key,arr] : unique_links){
                             std::string source_node_code;
                             std::string target_node_code;
                             std::string name;
 
-
-                            for(Link& l: arr){
+                            for(const Link &l: arr){
                                 source_node_code = l.source_node_code();
                                 target_node_code = l.target_node_code();
-                                name += l.get()["name"]+"; ";
+                                name += l.get().at("name")+"; ";
                             }
                             file << escape_string(source_node_code) << " --> " << escape_string(target_node_code) << " : " << name << std::endl;
                             //file    << "Rel(" << escape_string(source_node_code) <<"," << escape_string(target_node_code) <<",\"" << name <<"\")" << std::endl;

@@ -27,7 +27,7 @@ namespace database
         root->set("label", _label);
 
         Poco::JSON::Object::Ptr props = new Poco::JSON::Object();
-        for(auto& [n,m] : _map){
+        for(const auto& [n,m] : _map){
             props->set(n,m);
         }
 
@@ -40,7 +40,6 @@ namespace database
     {
         try
         {
-
             Node a;
             std::string query;
             query = "MATCH (a {";
@@ -48,11 +47,11 @@ namespace database
             query += code;
             query += "\"}) RETURN a,labels(a)";
 
-            auto res = neo4j::rest_request::query_nodes({query});
+            const auto res = neo4j::rest_request::query_nodes({query});
             if (res.size() > 0)
             {
                 std::vector<std::pair<std::string, std::string>> arr = res[0];
-                for (auto p : arr) a.get()[p.first] = p.second;
+                for (const auto &[k,v] : arr) a.get()[k] = v;
             }
             return a;
         }
@@ -69,8 +68,8 @@ namespace database
             std::vector<std::string> result;
             std::string query;
             query = "MATCH (n)  WHERE NOT n:CAPABILITY AND NOT n:TECH RETURN DISTINCT n.type AS types";
-            auto res = neo4j::rest_request::query_values({query});
-            for (auto &r : res)
+            const auto res = neo4j::rest_request::query_values({query});
+            for (const auto &r : res)
             {
                 result.push_back(r);
             }
@@ -92,12 +91,13 @@ namespace database
             query = "MATCH (a:";
             query += label;
             query += ")  RETURN a,labels(a)";
-            auto res = neo4j::rest_request::query_nodes({query});
-            for (auto &r : res)
+            const auto res = neo4j::rest_request::query_nodes({query});
+            for (const auto &r : res)
             {
                 Node a;
-                for (auto p : r) a.get()[p.first] = p.second;
-
+                for (const auto &[k,v] : r) {
+                    a.get()[k] = v;
+                }
                 result.push_back(a);
             }
             return result;
@@ -112,18 +112,18 @@ namespace database
     {
         try
         {
-
             std::vector<Node> result;
             std::string query;
             query = "MATCH (a) WHERE a.name CONTAINS \"";
             query += pattern;
             query += "\" RETURN a,labels(a)";
-            auto res = neo4j::rest_request::query_nodes({query});
-            for (auto &r : res)
+            const auto res = neo4j::rest_request::query_nodes({query});
+            for (const auto &r : res)
             {
                 Node a;
-                for (auto p : r) a.get()[p.first] = p.second;
-
+                for (const auto &[k,v] : r) {
+                    a.get()[k] = v;
+                } 
                 result.push_back(a);
             }
             return result;
@@ -146,11 +146,13 @@ namespace database
             query += code;
             query += "\"}) RETURN a";
 
-            auto res = neo4j::rest_request::query_nodes({query});
+            const auto res = neo4j::rest_request::query_nodes({query});
             for (auto &r : res)
             {
                 Node a;
-                for (auto p : r) a.get()[p.first] = p.second;
+                for (const auto &[k,v] : r) {
+                    a.get()[k] = v;
+                }
                 result.push_back(a);
             }
             return result;
@@ -162,13 +164,13 @@ namespace database
         }
     }
 
-    void Node::save()
+    void Node::save() const
     {
         std::string query;
         query = "MERGE (n:";
         query += _label;
         query += " {";
-        for(auto& [n,m] : get()){
+        for(const auto& [n,m] : get()){
             query += n;
             query += ":\"";
             query += m;
@@ -177,7 +179,7 @@ namespace database
         query = query.substr(0,query.size()-1);
         query += "}) ON MATCH set n+=";
         query += " {";
-        for(auto& [n,m] : get()){
+        for(const auto& [n,m] : get()){
             query += n;
             query += ":\"";
             query += m;
@@ -186,7 +188,7 @@ namespace database
         query = query.substr(0,query.size()-1);
         query += "} ON CREATE set n=";
         query += " {";
-        for(auto& [n,m] : get()){
+        for(const auto& [n,m] : get()){
             query += n;
             query += ":\"";
             query += m;
