@@ -11,6 +11,7 @@ docker_compose/logs/*
 docker_compose/plugin/*
 .vscode/*
 libs/*
+export/*
 
 # xls
 *.xls

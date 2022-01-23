@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.2)
 project(hl_mai_graphdb C CXX)
 
 set(EXAMPLE_BINARY "graphdb_server")
+set(EXPORT_BINARY "graphdb_export")
 
 find_package(OpenSSL)
 find_package(Threads)
@@ -35,3 +36,22 @@ target_link_libraries(${EXAMPLE_BINARY} PRIVATE
 
 set_target_properties(${EXAMPLE_BINARY} PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(${EXAMPLE_BINARY} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
+
+add_executable(${EXPORT_BINARY}  export_main.cpp
+                                 database/node.cpp
+                                 database/link.cpp
+                                 database/puml.cpp
+                                 config/config.cpp
+                                 neo4j/rest_client.cpp)
+target_include_directories(${EXPORT_BINARY} PRIVATE "${CMAKE_BINARY_DIR}")
+target_compile_options(${EXPORT_BINARY} PRIVATE -Wall -Wextra -pedantic -Werror -lstdc++fs)
+                                 
+target_link_libraries(${EXPORT_BINARY} PRIVATE 
+                                ${CMAKE_THREAD_LIBS_INIT} 
+                                ${Poco_LIBRARIES}
+                                "OpenXLSX"
+                                stdc++fs
+                                ZLIB::ZLIB)
+                                 
+set_target_properties(${EXPORT_BINARY} PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(${EXPORT_BINARY} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
