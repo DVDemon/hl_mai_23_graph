@@ -13,6 +13,7 @@
 #include "config/config.h"
 #include "database/node.h"
 #include "database/link.h"
+#include "database/puml.h"
 
 auto main() -> int
 {
@@ -98,6 +99,13 @@ auto main() -> int
                     wks.cell(i,5).value() = l.get()["name"];
                     ++i;
                 }
+
+                std::string diagram = node_dir;
+
+                if(lt== database::Link_type::in) diagram += "/inbound";
+                if(lt== database::Link_type::out) diagram += "/outbound";
+                std::string key = database::Puml::get().generate_puml(inbound_nodes, inbound_links,diagram);
+                database::Puml::get().wait_for(key);
             };
 
             add_sheet(inbound,database::Link_type::in);
@@ -107,6 +115,7 @@ auto main() -> int
             doc.close();
 
             // create inbound diagram
+
             // create outbound diagram
         }
     }
