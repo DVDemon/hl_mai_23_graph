@@ -16,6 +16,8 @@ struct ParserConfig{
         std::string target_node_name_index;
         std::string link_name_index;
 
+        std::map<int,std::string> names;
+
         void from_name(std::string&,std::string&);
 };
 

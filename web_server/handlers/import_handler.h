@@ -103,13 +103,21 @@ public:
                     unsigned long i = 1;
                     for (auto &row : wks.rows())
                     {
+                        std::vector<OpenXLSX::XLCellValue> row_vector(row.values());
                         if (i < 2)
                         {
+                            if (!row_vector.empty())
+                            for( auto [n,m] : cfg.names){
+                                std::string name = get_value(row_vector, n);
+                                cfg.names[n]= name;
+                            }
                             ++i;
+
+                            
                         }
                         else
                         {
-                            std::vector<OpenXLSX::XLCellValue> row_vector(row.values());
+                            
 
                             if (!row_vector.empty())
                             {
@@ -141,7 +149,10 @@ public:
                                         b.get()["name"] = target_node_name;
                                     nodes[target_node_code] = b;
                                 }
-
+                                for(auto [n,m] : cfg.names){
+                                    std::string v = get_value(row_vector, n);
+                                    link.get()[m]=v;
+                                }
                                 if((!source_node_code.empty())&&(!target_node_code.empty())){
                                     link.source_node_code() = source_node_code;
                                     link.target_node_code() = target_node_code;

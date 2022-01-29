@@ -36,7 +36,7 @@
         "link_name_index": ""
     },
     {
-        "sheet": "Sequence",
+        "sheet": "Взаимодействия",
         "link_type_name": "call",
         "node_type_name": "module",
         "source_node_code_index": "0",
@@ -45,7 +45,8 @@
         "target_node_type_index": "",
         "source_node_name_index": "1",
         "target_node_name_index": "3",
-        "link_name_index": "4"
+        "link_name_index": "4",
+        "properties": "5,6,7"
     }
 ]
 

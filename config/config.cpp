@@ -19,6 +19,24 @@ void ParserConfig::from_name(std::string& name,std::string& value) {
     if(name=="source_node_name_index") source_node_name_index=value;
     if(name=="target_node_name_index") target_node_name_index=value;
     if(name=="link_name_index") link_name_index=value;
+    if(name=="properties") {
+        size_t start = 0;
+        size_t cur   = 0;
+        
+       do{
+            cur = value.find(',',start);
+            if(cur!=std::string::npos){
+                std::string s  = value.substr(start,cur-start);
+                names[std::atoi(s.c_str())] = "name";
+                start = cur+1;
+            }
+        } while(cur!=std::string::npos);
+
+        if(value.length()>start) {
+            std::string s  = value.substr(start,value.length()-1);
+            names[std::atoi(s.c_str())] = "name";
+        }
+    }
 }
 
 Config::Config()
