@@ -54,6 +54,32 @@ using Poco::Util::ServerApplication;
 #include "../database/import_task.h"
 #include "../config/config.h"
 
+std::string encode(std::string val)
+{
+    std::string encoded;
+    std::transform(std::begin(val), std::end(val), std::back_inserter<std::string>(encoded),
+                   [](char &c)
+                   {
+                       switch (c)
+                       {
+                       case '\'':
+                           return ' ';
+                       case '\"':
+                           return ' ';
+                       case '/':
+                           return '_';
+                       case '\\':
+                           return '_';
+                       case ':':
+                           return '_';
+                       case '@':
+                           return '_';
+                       default:
+                           return c;
+                       };
+                   });
+    return encoded;
+}
 class ImportHandler : public HTTPRequestHandler
 {
 public:
@@ -61,10 +87,10 @@ public:
     {
     }
 
-    void import(const std::string &file)
+    void import(const std::string &file, const std::string &tag)
     {
         auto action =
-            [file]()
+            [file, tag]()
         {
             std::cout << "Importing:" << file << std::endl;
             OpenXLSX::XLDocument doc;
@@ -107,17 +133,15 @@ public:
                         if (i < 2)
                         {
                             if (!row_vector.empty())
-                            for( auto [n,m] : cfg.names){
-                                std::string name = get_value(row_vector, n);
-                                cfg.names[n]= name;
-                            }
+                                for (auto [n, m] : cfg.names)
+                                {
+                                    std::string name = get_value(row_vector, n);
+                                    cfg.names[n] = name;
+                                }
                             ++i;
-
-                            
                         }
                         else
                         {
-                            
 
                             if (!row_vector.empty())
                             {
@@ -132,41 +156,60 @@ public:
                                 database::Node a, b;
                                 database::Link link;
 
-                                if(!source_node_code.empty()){
+                                if (!source_node_code.empty())
+                                {
                                     a.label() = source_node_type;
                                     a.get()["type"] = source_node_type;
                                     a.get()["code"] = source_node_code;
                                     if (!source_node_name.empty())
-                                        a.get()["name"] = source_node_name;
+                                        a.get()["name"] = encode(source_node_name);
+                                    
+                                    if (cfg.only_node)
+                                    {
+                                        for (auto [n, m] : cfg.names)
+                                        {
+                                            std::string v = get_value(row_vector, n);
+                                            a.get()[m] = encode(v);
+                                        }
+                                    }
                                     nodes[source_node_code] = a;
                                 }
 
-                                if(!target_node_code.empty()){
-                                    b.label() = target_node_type;
-                                    b.get()["type"] = target_node_type;
-                                    b.get()["code"] = target_node_code;
-                                    if (!target_node_name.empty())
-                                        b.get()["name"] = target_node_name;
-                                    nodes[target_node_code] = b;
-                                }
-                                for(auto [n,m] : cfg.names){
-                                    std::string v = get_value(row_vector, n);
-                                    link.get()[m]=v;
-                                }
-                                if((!source_node_code.empty())&&(!target_node_code.empty())){
-                                    link.source_node_code() = source_node_code;
-                                    link.target_node_code() = target_node_code;
-                                    link.get()["type"] = link_type;
-                                    link.get()["name"] = link_name;
-                                    link.label() = link_type;
-                                    links.push_back(link);
+                                if (!cfg.only_node)
+                                {
+                                    if (!target_node_code.empty())
+                                    {
+                                        b.label() = target_node_type;
+                                        b.get()["type"] = target_node_type;
+                                        b.get()["code"] = target_node_code;
+                                        if (!target_node_name.empty())
+                                            b.get()["name"] = encode(target_node_name);
+                                        nodes[target_node_code] = b;
+                                    }
+
+                                    for (auto [n, m] : cfg.names)
+                                    {
+                                        std::string v = get_value(row_vector, n);
+                                        link.get()[m] = encode(v);
+                                    }
+
+                                    link.get()["tag"] = tag;
+
+                                    if ((!source_node_code.empty()) && (!target_node_code.empty()))
+                                    {
+                                        link.source_node_code() = source_node_code;
+                                        link.target_node_code() = target_node_code;
+                                        link.get()["type"] = link_type;
+                                        link.get()["name"] = encode(link_name);
+                                        link.label() = link_type;
+                                        links.push_back(link);
+                                    }
                                 }
                             }
                         }
                     }
                 }
 
-                
                 std::cout << "Parsed links:" << links.size() << std::endl;
                 std::cout << "Parsed nodes:" << nodes.size() << std::endl;
 
@@ -195,35 +238,35 @@ public:
             };
             doc.close();
             if (std::experimental::filesystem::remove(file))
-                    std::cout << "file " << file << " deleted.\n";
+                std::cout << "file " << file << " deleted.\n";
         };
         database::ImportTask::get().add(action);
     }
-        
 
-        void handleRequest(HTTPServerRequest & request,
-                           HTTPServerResponse & response)
-        {
-            std::ofstream file;
+    void handleRequest(HTTPServerRequest &request,
+                       HTTPServerResponse &response)
+    {
+        std::ofstream file;
 
-            auto uuid_str = Poco::UUIDGenerator().createRandom().toString();
-            uuid_str += ".xls";
-            const std::string xlsx_name{uuid_str};
-            file.open(xlsx_name, std::ofstream::binary);
-            std::istream &is = request.stream();
-            Poco::StreamCopier::copyStream(is, file, request.getContentLength());
-            Poco::Net::HTMLForm form(request, is);
+        auto uuid_str = Poco::UUIDGenerator().createRandom().toString();
+        uuid_str += ".xls";
+        const std::string xlsx_name{uuid_str};
+        file.open(xlsx_name, std::ofstream::binary);
+        std::istream &is = request.stream();
+        Poco::StreamCopier::copyStream(is, file, request.getContentLength());
+        Poco::Net::HTMLForm form(request, is);
 
-            import(xlsx_name);
+        std::string tag = form.has("tag") ? form.get("tag") : "no_tag";
+        import(xlsx_name, tag);
 
-            response.setChunkedTransferEncoding(true);
-            response.setContentType("text/html");
-            response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_OK);
-            std::ostream &ostr = response.send();
-            ostr.flush();
-        }
+        response.setChunkedTransferEncoding(true);
+        response.setContentType("text/html");
+        response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_OK);
+        std::ostream &ostr = response.send();
+        ostr.flush();
+    }
 
-    private:
-        std::string _format;
-    };
+private:
+    std::string _format;
+};
 #endif // !IMPORTHANDLER_H

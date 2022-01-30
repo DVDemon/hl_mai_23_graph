@@ -15,6 +15,7 @@ struct ParserConfig{
         std::string source_node_name_index;
         std::string target_node_name_index;
         std::string link_name_index;
+        bool only_node {false};
 
         std::map<int,std::string> names;
 

@@ -68,7 +68,7 @@ namespace database
         {
             std::vector<std::string> result;
             std::string query;
-            query = "MATCH (n)  WHERE NOT n:CAPABILITY AND NOT n:TECH RETURN DISTINCT n.type AS types";
+            query = "MATCH (n) RETURN DISTINCT n.type AS types";
             auto res = neo4j::rest_request::query_values({query});
             for (auto &r : res)
             {
@@ -165,17 +165,18 @@ namespace database
     void Node::save()
     {
         std::string query;
-        query = "MERGE (n:";
-        query += _label;
-        query += " {";
-        for(auto& [n,m] : get()){
+        query = "MERGE (n";
+        if(!_label.empty()) query += ":"+_label;
+        query += " { code: \"";
+        query += get()["code"];
+        /*for(auto& [n,m] : get()){
             query += n;
             query += ":\"";
             query += m;
             query += "\",";
         }
-        query = query.substr(0,query.size()-1);
-        query += "}) ON MATCH set n+=";
+        query = query.substr(0,query.size()-1);*/
+        query += "\"}) ON MATCH set n+=";
         query += " {";
         for(auto& [n,m] : get()){
             query += n;
@@ -194,6 +195,7 @@ namespace database
         }
         query = query.substr(0,query.size()-1);     
         query += "} RETURN n";
+
         neo4j::rest_request::query_nodes({query});
     }
 }

@@ -78,7 +78,7 @@ namespace neo4j
         }
 
         request.setContentLength(ostr.str().length());
-        //std::cout << std::endl << ostr.str() << std::endl;
+        //std::cout << std::endl << ostr.str() << std::endl << std::endl;
         session.sendRequest(request) << ostr.str() << std::flush;
 
         Poco::Net::HTTPResponse response;

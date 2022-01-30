@@ -19,6 +19,7 @@ void ParserConfig::from_name(std::string& name,std::string& value) {
     if(name=="source_node_name_index") source_node_name_index=value;
     if(name=="target_node_name_index") target_node_name_index=value;
     if(name=="link_name_index") link_name_index=value;
+    if(name=="only_node") if(value=="true") only_node=true;
     if(name=="properties") {
         size_t start = 0;
         size_t cur   = 0;

@@ -52,7 +52,7 @@ auto main() -> int
                                     case '/':  return '_';
                                     case '\\': return '_';
                                     case ':': return '_';
-
+                                    case '@': return '_';
                                     default:
                                         return c;
                                 };
