@@ -190,6 +190,8 @@ namespace neo4j
         try
         {
             Poco::JSON::Object::Ptr jobject = post_object( params);
+           // Poco::JSON::Stringifier::stringify(jobject, std::cout);
+           // std::cout << std::endl << std::endl;
             Poco::JSON::Array::Ptr datasets = jobject->getArray("results");
             if (datasets->size() == 1)
             {

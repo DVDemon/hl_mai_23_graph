@@ -36,7 +36,7 @@
         "link_name_index": ""
     },
     {
-        "sheet": "Взаимодействия",
+        "sheet": "Сообющения с процессами",
         "link_type_name": "call",
         "node_type_name": "",
         "source_node_code_index": "0",
@@ -45,8 +45,8 @@
         "target_node_type_index": "",
         "source_node_name_index": "1",
         "target_node_name_index": "3",
-        "link_name_index": "4",
-        "properties": "5,6,7"
+        "link_name_index": "",
+        "properties": "4,5,6"
     },
     {
         "sheet": "ППМ",

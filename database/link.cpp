@@ -94,12 +94,12 @@ namespace database
     {
         //MATCH (a:MODULE) WITH a MATCH(b:MODULE) where a.code="PRO.228" and b.code="WFM" CREATE (a)-[:sequence_call]->(b)
         std::string query;
-        query = "MATCH (a {";
-        query += "code:\"";
+        query = "OPTIONAL MATCH (a),(b) WHERE ";
+        query += "a.code=\"";
         query += _source_node_code;
-        query += "\"}),(b{code:\"";
+        query += "\" and b.code=\"";
         query += _target_node_code;
-        query += "\"}) MERGE (a)-[:";
+        query += "\" MERGE (a)-[:";
         query += _label;
         query += " {";
         for (auto &[n, m] : get())
